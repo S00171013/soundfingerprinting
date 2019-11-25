@@ -17,7 +17,7 @@ namespace SoundtrackSeekerCE
     class Program
     {
         //private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM.
-        private readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
+        //private readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
         //private readonly EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399. Is it necessary to connect in each method? I'll investigate later.
 
         static void Main(string[] args)
@@ -43,9 +43,11 @@ namespace SoundtrackSeekerCE
                 {
                     case "0":
                         validInput = true;
+                        // Method 1.
                         //var task = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPath1, metaFieldForTrack1));
                         //var result = task.WaitAndUnwrapException();
-                        //var t = Task.Run(StoreForLaterRetrievalAsync(trackPath1, metaFieldForTrack1));
+                        // Method 2.
+                        var t = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPath1, metaFieldForTrack1));
 
                         // https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task.run?view=netframework-4.8
                         // https://stackoverflow.com/questions/9343594/how-to-call-asynchronous-method-from-synchronous-method-in-c
@@ -72,7 +74,7 @@ namespace SoundtrackSeekerCE
         }
 
         // STORAGE
-        public async Task StoreForLaterRetrievalAsync(string pathToAudioFile, Dictionary<string, string> metaFieldIn)
+        public static async Task StoreForLaterRetrievalAsync(string pathToAudioFile, Dictionary<string, string> metaFieldIn)
         {
             // Connect to Emy on port 3399.
             var emyModelService = EmyModelService.NewInstance("localhost", 3399);
