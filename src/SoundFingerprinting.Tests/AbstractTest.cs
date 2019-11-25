@@ -31,7 +31,7 @@
                 Assert.AreEqual(val, value);
             }
         }
-        
+       
         protected void AssertTracksAreEqual(TrackInfo expectedTrack, TrackData actualTrack)
         {
             Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
