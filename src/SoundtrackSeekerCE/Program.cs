@@ -51,6 +51,7 @@ namespace SoundtrackSeekerCE
 
                         // https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task.run?view=netframework-4.8
                         // https://stackoverflow.com/questions/9343594/how-to-call-asynchronous-method-from-synchronous-method-in-c
+			// https://stackoverflow.com/questions/13046174/how-should-i-use-static-method-classes-within-async-await-operations
                         break;
 
                     case "1":
