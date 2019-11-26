@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
+using Nito.AsyncEx.Synchronous;
 using SoundFingerprinting;
 using SoundFingerprinting.Audio;
 using SoundFingerprinting.Builder;
@@ -17,18 +18,18 @@ namespace SoundtrackSeekerCE
     class Program
     {
         //private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM.
-        //private readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
-        //private readonly EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399. Is it necessary to connect in each method? I'll investigate later.
+        private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
+        //private readonly EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3340); // connect to Emy on port 3399. Is it necessary to connect in each method? I'll investigate later.       
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Dictionary<string, string> metaFieldForTrack1 = new Dictionary<string, string>();
             metaFieldForTrack1.Add("Album", "Metal Gear (MSX)");
             Dictionary<string, string> metaFieldForTrack2 = new Dictionary<string, string>();
             metaFieldForTrack2.Add("Album", "Street Fighter III: New Generation");
 
-            string trackPath1 = "Test Audio for Storage/01_theme_of_tara.mp3";
-            string trackPath2 = "Test Audio for Storage/02_leave_alone.mp3";
+            string trackPath1 = "Test Audio for Storage/01_theme_of_tara.wav";
+            string trackPath2 = "Test Audio for Storage/02_leave_alone.wav";
 
             bool validInput;
 
@@ -46,24 +47,62 @@ namespace SoundtrackSeekerCE
                         // Method 1.
                         //var task = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPath1, metaFieldForTrack1));
                         //var result = task.WaitAndUnwrapException();
-                        // Method 2.
+                        // Method 2.   
                         var t = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPath1, metaFieldForTrack1));
+
+                        // Connect to Emy on port 3399.
+                        var emyModelService = EmyModelService.NewInstance("localhost", 3399);
+
+                        // TrackInfo from metadata.
+                        var track = new TrackInfo("GBBKS1200164", "Theme of Tara", "KONAMI KuKeiHa CLUB", 201, metaFieldForTrack1); // Define track info.
+
+                        // Create fingerprints.
+                        var hashedFingerprints = await FingerprintCommandBuilder.Instance
+                                                    .BuildFingerprintCommand()
+                                                    .From(trackPath1)
+                                                    .UsingServices(audioService)
+                                                    .Hash();
+
+                        // Store hashes in the database for later retrieval.
+                        emyModelService.Insert(track, hashedFingerprints);
+
+
 
                         // https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task.run?view=netframework-4.8
                         // https://stackoverflow.com/questions/9343594/how-to-call-asynchronous-method-from-synchronous-method-in-c
-			// https://stackoverflow.com/questions/13046174/how-should-i-use-static-method-classes-within-async-await-operations
+                        // https://stackoverflow.com/questions/13046174/how-should-i-use-static-method-classes-within-async-await-operations
                         break;
 
                     case "1":
                         validInput = true;
+
+                        Console.WriteLine("Case 1 active.");
+
+                        //// Connect to Emy on port 3399.
+                        //var emyModelService2 = EmyModelService.NewInstance("localhost", 3399);
+
+                        //// TrackInfo from metadata.
+                        //var track2 = new TrackInfo("GPPDS1989360", "Leave Alone", "Yuki Iwai", 134, metaFieldForTrack2); // Define track info.
+
+                        //// Create fingerprints.
+                        //var hashedFingerprints2 = await FingerprintCommandBuilder.Instance
+                        //                            .BuildFingerprintCommand()
+                        //                            .From(trackPath2)
+                        //                            .UsingServices(audioService)
+                        //                            .Hash();
+
+                        //// Store hashes in the database for later retrieval.
+                        //emyModelService2.Insert(track2, hashedFingerprints2);
                         break;
 
                     case "2":
                         validInput = true;
+                        EmyRegisterBestMatchesForSong(trackPath1);
                         break;
 
                     case "3":
                         validInput = true;
+                        EmyRegisterBestMatchesForSong(trackPath2);                                             
                         break;
 
                     default:
@@ -76,7 +115,7 @@ namespace SoundtrackSeekerCE
 
         // STORAGE
         public static async Task StoreForLaterRetrievalAsync(string pathToAudioFile, Dictionary<string, string> metaFieldIn)
-        {
+        {           
             // Connect to Emy on port 3399.
             var emyModelService = EmyModelService.NewInstance("localhost", 3399);
 
@@ -95,8 +134,8 @@ namespace SoundtrackSeekerCE
         }
 
         // QUERIES        
-        public async void EmyRegisterBestMatchesForSong(string queryAudioFile)
-        {
+        public static async void EmyRegisterBestMatchesForSong(string queryAudioFile)
+        {           
             // Connect to Emy on port 3399.
             var emyModelService = EmyModelService.NewInstance("localhost", 3399);
 
