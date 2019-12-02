@@ -19,17 +19,22 @@ namespace SoundtrackSeekerCE
     {
         //private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM.
         private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
-        //private readonly EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3340); // connect to Emy on port 3399. Is it necessary to connect in each method? I'll investigate later.       
+        //private readonly EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399. Is it necessary to connect in each method? I'll investigate later.       
 
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             Dictionary<string, string> metaFieldForTrack1 = new Dictionary<string, string>();
             metaFieldForTrack1.Add("Album", "Metal Gear (MSX)");
             Dictionary<string, string> metaFieldForTrack2 = new Dictionary<string, string>();
             metaFieldForTrack2.Add("Album", "Street Fighter III: New Generation");
+            Dictionary<string, string> metaFieldForTrack3 = new Dictionary<string, string>();
+            metaFieldForTrack3.Add("Album", "Ape Escape");
 
             string trackPath1 = "Test Audio for Storage/01_theme_of_tara.wav";
             string trackPath2 = "Test Audio for Storage/02_leave_alone.wav";
+            string trackPath3 = "Test Audio for Storage/03_galaxy_monkey.wav";
+
+            var track3Info = new TrackInfo("GBDFS2385164", "Galaxy Monkey", "Soichi Terada", 201, metaFieldForTrack3); // Define track 3 info.
 
             bool validInput;
 
@@ -37,36 +42,16 @@ namespace SoundtrackSeekerCE
             {
                 Console.WriteLine("A simple Emy Test.");
                 Console.WriteLine("\nSelect an option.");
-                Console.WriteLine("\n0: Insert Track 1\n1: Insert Track 2\n2: Query Track 1\n3: Query Track 2\n");
+                Console.WriteLine("\n0: Insert Track 1\n1: Insert Track 3\n2: Query Track 1\n3: Query Track 2\n");
                 string userInput = Console.ReadLine().Trim();
 
                 switch (userInput)
                 {
                     case "0":
                         validInput = true;
-                        // Method 1.
-                        //var task = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPath1, metaFieldForTrack1));
-                        //var result = task.WaitAndUnwrapException();
-                        // Method 2.   
-                        var t = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPath1, metaFieldForTrack1));
-
-                        // Connect to Emy on port 3399.
-                        var emyModelService = EmyModelService.NewInstance("localhost", 3399);
-
-                        // TrackInfo from metadata.
-                        var track = new TrackInfo("GBBKS1200164", "Theme of Tara", "KONAMI KuKeiHa CLUB", 201, metaFieldForTrack1); // Define track info.
-
-                        // Create fingerprints.
-                        var hashedFingerprints = await FingerprintCommandBuilder.Instance
-                                                    .BuildFingerprintCommand()
-                                                    .From(trackPath1)
-                                                    .UsingServices(audioService)
-                                                    .Hash();
-
-                        // Store hashes in the database for later retrieval.
-                        emyModelService.Insert(track, hashedFingerprints);
-
-
+                        Console.WriteLine("Case 0 active.");
+                        var task0 = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPath3, metaFieldForTrack3, track3Info));
+                        task0.WaitAndUnwrapException();
 
                         // https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task.run?view=netframework-4.8
                         // https://stackoverflow.com/questions/9343594/how-to-call-asynchronous-method-from-synchronous-method-in-c
@@ -75,34 +60,27 @@ namespace SoundtrackSeekerCE
 
                     case "1":
                         validInput = true;
-
                         Console.WriteLine("Case 1 active.");
-
-                        //// Connect to Emy on port 3399.
-                        //var emyModelService2 = EmyModelService.NewInstance("localhost", 3399);
-
-                        //// TrackInfo from metadata.
-                        //var track2 = new TrackInfo("GPPDS1989360", "Leave Alone", "Yuki Iwai", 134, metaFieldForTrack2); // Define track info.
-
-                        //// Create fingerprints.
-                        //var hashedFingerprints2 = await FingerprintCommandBuilder.Instance
-                        //                            .BuildFingerprintCommand()
-                        //                            .From(trackPath2)
-                        //                            .UsingServices(audioService)
-                        //                            .Hash();
-
-                        //// Store hashes in the database for later retrieval.
-                        //emyModelService2.Insert(track2, hashedFingerprints2);
+                        var task1 = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPath3, metaFieldForTrack3, track3Info));
+                        task1.WaitAndUnwrapException();
                         break;
 
                     case "2":
                         validInput = true;
-                        EmyRegisterBestMatchesForSong(trackPath1);
+                        //EmyRegisterBestMatchesForSong(trackPath1);
+                        var task2 = Task.Run(async () => await GetBestMatchForSong(trackPath1));
+                        TrackData td2 = task2.WaitAndUnwrapException<TrackData>();
+                        bool albumFound2 = td2.MetaFields.TryGetValue("Album", out string value2); // I'd like to get the metafields more gracefully if I can.
+                        Console.WriteLine("\nMatch!\nTitle: {0}\nAlbum: {1}", td2.Title, value2);
                         break;
 
                     case "3":
                         validInput = true;
-                        EmyRegisterBestMatchesForSong(trackPath2);                                             
+                        //EmyRegisterBestMatchesForSong(trackPath2); 
+                        var task3 = Task.Run(async () => await GetBestMatchForSong(trackPath2));
+                        TrackData td3 = task3.WaitAndUnwrapException<TrackData>();
+                        bool albumFound3 = td3.MetaFields.TryGetValue("Album", out string value3);
+                        Console.WriteLine("\nMatch!\nTitle: {0}\nAlbum: {1}", td3.Title, value3);
                         break;
 
                     default:
@@ -114,13 +92,13 @@ namespace SoundtrackSeekerCE
         }
 
         // STORAGE
-        public static async Task StoreForLaterRetrievalAsync(string pathToAudioFile, Dictionary<string, string> metaFieldIn)
+        public static async Task StoreForLaterRetrievalAsync(string pathToAudioFile, Dictionary<string, string> metaFieldIn, TrackInfo trackInfoIn)
         {           
             // Connect to Emy on port 3399.
             var emyModelService = EmyModelService.NewInstance("localhost", 3399);
 
-            // TrackInfo from metadata.
-            var track = new TrackInfo("GBBKS1200164", "Theme of Tara", "KONAMI KuKeiHa CLUB", 201, metaFieldIn); // Define track info.
+            //// TrackInfo from metadata.
+            //var track = new TrackInfo("GBBKS1200164", "Theme of Tara", "KONAMI KuKeiHa CLUB", 201, metaFieldIn); // Define track info.
 
             // Create fingerprints.
             var hashedFingerprints = await FingerprintCommandBuilder.Instance
@@ -130,12 +108,13 @@ namespace SoundtrackSeekerCE
                                         .Hash();
 
             // Store hashes in the database for later retrieval.
-            emyModelService.Insert(track, hashedFingerprints);
+            emyModelService.Insert(trackInfoIn, hashedFingerprints);
         }
 
         // QUERIES        
         public static async void EmyRegisterBestMatchesForSong(string queryAudioFile)
-        {           
+        {
+            Console.WriteLine("'EmyRegisterBestMatchesForSong' method activated.");
             // Connect to Emy on port 3399.
             var emyModelService = EmyModelService.NewInstance("localhost", 3399);
 
@@ -151,9 +130,9 @@ namespace SoundtrackSeekerCE
             // Register matches so that they appear in the dashboard.					
             emyModelService.RegisterMatches(queryResult.ResultEntries);
         }
-
-        public async Task<TrackData> GetBestMatchForSong(string queryAudioFile)
+        public static async Task<TrackData> GetBestMatchForSong(string queryAudioFile)
         {
+            Console.WriteLine("'GetBestMatchForSong' method activated.");
             // Connect to Emy on port 3399.
             var emyModelService = EmyModelService.NewInstance("localhost", 3399);
 
@@ -165,6 +144,9 @@ namespace SoundtrackSeekerCE
                                                  .From(queryAudioFile, secondsToAnalyze, startAtSecond)
                                                  .UsingServices(emyModelService, audioService)
                                                  .Query();
+
+            //// Register matches so that they appear in the dashboard.					
+            //if(queryResult != null) emyModelService.RegisterMatches(queryResult.ResultEntries); //This line still causes issues.
 
             return queryResult.BestMatch.Track;
         }
