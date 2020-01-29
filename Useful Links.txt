@@ -1,3 +1,3 @@
-https://stackoverflow.com/questions/20530728/naudio-record-microphone-for-x-amount-of-seconds
+https://stackoverflow.com/questions/24607351/recording-microphone-audio-using-naudio-in-a-console-application
 https://www.youtube.com/watch?v=FxWj5eK9r_k
 https://markheath.net/post/how-to-use-wavefilewriter

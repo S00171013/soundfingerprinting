@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Timers;
 using Nito.AsyncEx.Synchronous;
 using SoundFingerprinting;
 using SoundFingerprinting.Audio;
@@ -20,15 +19,15 @@ namespace SoundtrackSeekerCE
         private static readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM.
         private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
         private static readonly EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399. Is it necessary to connect in each method? I'll investigate later.       
-
-        private static WaveInEvent sourceStream = null;
-        private static WaveFileWriter waveWriter = null;
-        private static Timer timer;
-        private static int secondsToListen = 10;
+        
+        private static WaveInEvent waveSource = null;
+        private static WaveFileWriter waveFile = null;        
+        private const int SECONDS_TO_LISTEN = 13;
         public static string tempFile = Path.Combine(Path.GetTempPath(), "SSQuery" + ".wav");
 
         static void Main(string[] args)
         {
+            #region Data creation. Unnecessary.
             Dictionary<string, string> metaFieldForTrack1 = new Dictionary<string, string>();
             metaFieldForTrack1.Add("Album", "Metal Gear (MSX)");
             Dictionary<string, string> metaFieldForTrack2 = new Dictionary<string, string>();
@@ -39,14 +38,15 @@ namespace SoundtrackSeekerCE
             string trackPath1 = "Test Audio for Storage/01_theme_of_tara.wav";
             string trackPath2 = "Test Audio for Storage/02_leave_alone.wav";
             string trackPath3 = "Test Audio for Storage/03_galaxy_monkey.wav";
-            string trackPath4 = "Test Audio for Storage/05_breeze_time.wav";          
+            string trackPath4 = "Test Audio for Storage/05_breeze_time.wav";
 
             var track3Info = new TrackInfo("GBDFS2385164", "Galaxy Monkey", "Soichi Terada", 201, metaFieldForTrack3); // Define track 3 info.
+            #endregion
 
             bool validInput;
 
             do
-            {
+            {                
                 Console.WriteLine("A simple Emy Test.");
                 Console.WriteLine("\nSelect an option.");
                 Console.WriteLine("\n0: Insert Track 1\n1: Insert Track 3\n2: Query Track 1\n3: Query 'Leave Alone'\n4: Seek...");
@@ -54,7 +54,8 @@ namespace SoundtrackSeekerCE
 
                 switch (userInput)
                 {
-                    case "0": // INSERT TRACK 1.
+                    #region Not now.
+                    case "0": // INSERT TRACK 1.                      
                         validInput = true;
                         Console.WriteLine("Case 0 active.");
                         var task0 = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPath3, metaFieldForTrack3, track3Info));
@@ -92,10 +93,11 @@ namespace SoundtrackSeekerCE
                             Console.WriteLine("\nMatch!\nTitle: {0}\nAlbum: {1}", td3.Title, value3);
                         }
                         break;
+                    #endregion
 
                     case "4": // Query Track 2.
-                        validInput = true;
-                        StartListening(); // Oh Christ...
+                        validInput = true;                       
+                        Seek();                       
                         break;
 
                     default:
@@ -104,6 +106,11 @@ namespace SoundtrackSeekerCE
                 }
             }
             while (validInput == false);
+        }
+
+        static void waveSource_DataAvailable(object sender, WaveInEventArgs e)
+        {
+            waveFile.Write(e.Buffer, 0, e.BytesRecorded);
         }
 
         // STORAGE
@@ -149,7 +156,7 @@ namespace SoundtrackSeekerCE
             {
                 return queryResult.BestMatch.Track;
             }
-            catch(NullReferenceException nre)
+            catch (NullReferenceException nre)
             {
                 Console.WriteLine("Song not found!");
                 return null;
@@ -175,66 +182,39 @@ namespace SoundtrackSeekerCE
         }
 
         private static void Seek()
+        { // https://stackoverflow.com/questions/24607351/recording-microphone-audio-using-naudio-in-a-console-application Used for reference.
+            Console.WriteLine("\nNow recording...");
+
+            waveSource = new WaveInEvent();
+
+            waveSource.WaveFormat = new NAudio.Wave.WaveFormat(44100, 1);
+            waveSource.DataAvailable += new EventHandler<WaveInEventArgs>(waveSource_DataAvailable);
+
+            tempFile = @"Test Audio for Storage\query.wav";
+            waveFile = new WaveFileWriter(tempFile, waveSource.WaveFormat);
+            waveSource.StartRecording();            
+
+            var task = Task.Run(async () => await CeaseListening(waveSource, waveFile, SECONDS_TO_LISTEN));
+            task.WaitAndUnwrapException();                                  
+        }        
+
+        public static async Task CeaseListening(WaveInEvent waveSource, WaveFileWriter waveFile, int seconds)
         {
+            await Task.Delay(seconds * 1000);
+            waveSource.StopRecording();
+            waveFile.Dispose();
 
-        }
+            Console.WriteLine("\nFinished listening. Ready to seek!");
 
-        private static void StartListening()
-        {
-            int deviceNumber = 0; // Let's use the default device.                      
-
-            sourceStream = new WaveInEvent();
-            sourceStream.DeviceNumber = deviceNumber;
-            sourceStream.WaveFormat = new NAudio.Wave.WaveFormat(44100, WaveIn.GetCapabilities(deviceNumber).Channels);
-
-            sourceStream.DataAvailable += new EventHandler<WaveInEventArgs>(sourceStream_DataAvailable);
-            waveWriter = new WaveFileWriter(tempFile, sourceStream.WaveFormat);           
-
-            /*Start the timer that will mark the recording end*/
-            /*We multiply by 1000 because the Timer object works with milliseconds*/
-            timer = new Timer(secondsToListen * 1000);
-
-            /*if the timer elapses don't reset it, stop it instead*/
-            timer.AutoReset = false;
-
-            /*Callback that will be executed once the recording duration has elapsed*/
-            timer.Elapsed += StopListening;
-
-            sourceStream.StartRecording();
-                        
-        }
-
-        private static void sourceStream_DataAvailable(object sender, WaveInEventArgs e)
-        {
-            if (waveWriter == null) return;
-
-            waveWriter.Write(e.Buffer, 0, e.BytesRecorded);
-            waveWriter.Flush();
-        }
-
-        private static void StopListening(object sender, ElapsedEventArgs e)
-        {
-            timer?.Stop();
-
-            timer?.Dispose();
-
-            if (waveWriter != null)
+            var task = Task.Run(async () => await GetBestMatchForSong(tempFile));
+            TrackData td = task.WaitAndUnwrapException<TrackData>();
+            if (td != null)
             {
-                waveWriter.Dispose();
-                waveWriter = null;
-                // Stop recording necessary?
-                if(File.Exists(tempFile))
-                {
-                    var task3 = Task.Run(async () => await GetBestMatchForSong(tempFile));
-                    TrackData td3 = task3.WaitAndUnwrapException<TrackData>();
-                    if (td3 != null)
-                    {
-                        bool albumFound3 = td3.MetaFields.TryGetValue("Album", out string value3);
-                        Console.WriteLine("\nMatch!\nTitle: {0}\nAlbum: {1}", td3.Title, value3);
-                    }
-                }               
+                bool albumFound = td.MetaFields.TryGetValue("Album", out string value3);
+                Console.WriteLine("\nMatch!\nTitle: {0}\nAlbum: {1}", td.Title, value3);
             }
-        }
+        }       
+
         // DELETION - To figure out later.
         //private static void DeleteTrackFingerprint(string trackID)
         //{
