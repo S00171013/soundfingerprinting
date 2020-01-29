@@ -99,11 +99,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Test Audio for Storage\02_leave_alone.mp3" />
-    <Content Include="Test Audio for Storage\05_breeze_time.mp3" />
-    <Content Include="Test Audio for Storage\03_galaxy_monkey.mp3" />
-    <Content Include="Test Audio for Storage\04_satomi_tadashi_rengedai_branch.mp3" />
-    <Content Include="Test Audio for Storage\01_theme_of_tara.mp3" />
+    <Folder Include="Test Audio for Storage\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
