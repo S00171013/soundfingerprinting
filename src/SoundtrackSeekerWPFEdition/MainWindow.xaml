@@ -1,0 +1,19 @@
+﻿<Window x:Class="SoundtrackSeekerWPFEdition.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SoundtrackSeekerWPFEdition"
+        mc:Ignorable="d"
+        Title="Soundtrack Seeker" Height="450" Width="400">
+    <Grid>
+        <Label x:Name="lblAppName" Content="Soundtrack Seeker" HorizontalAlignment="Center" Margin="0,33,0,0" VerticalAlignment="Top" FontSize="30" FontWeight="Bold"/>
+        <Button x:Name="btnSeek" Content="Seek!" HorizontalAlignment="Center" Width="90" Background="#FFE2D12A" Foreground="Black" FontSize="28" Click="btnSeek_Click" Margin="0,118,0,245"/>
+
+        <Image x:Name="imgAlbum" HorizontalAlignment="Stretch" Height="100" Margin="0,201,0,0" VerticalAlignment="Top" Width="100"/>
+        <Label x:Name="lblTitle" Content="Title" HorizontalAlignment="Center" Margin="0,313,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+        <Label x:Name="lblAlbum" Content="Album" HorizontalAlignment="Center" Margin="0,344,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+        <Label x:Name="lblArtist" Content="Artist" HorizontalAlignment="Center" Margin="0,375,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+        <Label x:Name="lblListenMessage" Content="Listening!" HorizontalAlignment="Center" Margin="0,83,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" IsEnabled="False"/>
+    </Grid>
+</Window>

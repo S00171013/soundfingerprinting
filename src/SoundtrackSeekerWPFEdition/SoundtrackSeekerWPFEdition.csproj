@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="1.10.0" />
+    <PackageReference Include="NAudio.Lame" Version="1.1.0" />
+    <PackageReference Include="SoundFingerprinting" Version="7.1.0" />
+    <PackageReference Include="SoundFingerprinting.Audio.NAudio" Version="7.0.0" />
+    <PackageReference Include="SoundFingerprinting.Emy" Version="7.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Queries\query.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
