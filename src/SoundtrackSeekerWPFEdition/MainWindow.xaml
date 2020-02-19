@@ -11,9 +11,9 @@
         <Button x:Name="btnSeek" Content="Seek!" HorizontalAlignment="Center" Width="90" Background="#FFE2D12A" Foreground="Black" FontSize="28" Click="btnSeek_Click" Margin="0,118,0,245"/>
 
         <Image x:Name="imgAlbum" HorizontalAlignment="Stretch" Height="100" Margin="0,201,0,0" VerticalAlignment="Top" Width="100"/>
-        <Label x:Name="lblTitle" Content="Title" HorizontalAlignment="Center" Margin="0,313,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
-        <Label x:Name="lblAlbum" Content="Album" HorizontalAlignment="Center" Margin="0,344,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
-        <Label x:Name="lblArtist" Content="Artist" HorizontalAlignment="Center" Margin="0,375,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
-        <Label x:Name="lblListenMessage" Content="Listening!" HorizontalAlignment="Center" Margin="0,83,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" IsEnabled="False"/>
+        <Label x:Name="lblTitle" Visibility ="Hidden" Content="Title" HorizontalAlignment="Center" Margin="0,313,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+        <Label x:Name="lblAlbum" Visibility ="Hidden" Content="Album" HorizontalAlignment="Center" Margin="0,344,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+        <Label x:Name="lblArtist" Visibility ="Hidden" Content="Artist" HorizontalAlignment="Center" Margin="0,375,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+        <Label x:Name="lblListenMessage" Visibility ="Hidden" Content="Listening!" HorizontalAlignment="Center" Margin="0,83,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" IsEnabled="False"/>
     </Grid>
 </Window>

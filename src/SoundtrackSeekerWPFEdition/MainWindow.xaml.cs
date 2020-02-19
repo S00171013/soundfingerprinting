@@ -6,6 +6,7 @@ using SoundFingerprinting.Emy;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 
 namespace SoundtrackSeekerWPFEdition
@@ -27,8 +28,9 @@ namespace SoundtrackSeekerWPFEdition
 
         private void btnSeek_Click(object sender, RoutedEventArgs e)
         {
-            lblListenMessage.IsEnabled = !lblListenMessage.IsEnabled;
-            btnSeek.IsEnabled = false;
+            HandleVisibility(lblListenMessage, "DISPLAY");
+            HandleVisibility(btnSeek, "HIDE");
+            SetTrackInfoVisibility("HIDE");        
 
             waveSource = new WaveInEvent();
 
@@ -67,12 +69,16 @@ namespace SoundtrackSeekerWPFEdition
                 {
                     lblTitle.Content = td.Title;
                     lblAlbum.Content = foundAlbum;
-                }), DispatcherPriority.Render);                                
+
+                    SetTrackInfoVisibility("DISPLAY"); // Gotta check this out at home. Have a feeling changes won't be made while the labels are invisible.
+                }), DispatcherPriority.Render);                  
             }
 
             await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
-                btnSeek.IsEnabled = true;
+                HandleVisibility(lblListenMessage, "HIDE");
+                HandleVisibility(btnSeek, "DISPLAY");                                
+
             }), DispatcherPriority.Render);            
         }
 
@@ -99,6 +105,20 @@ namespace SoundtrackSeekerWPFEdition
                 MessageBox.Show("Track not found! Please try moving your microphone closer to the audio source.");
                 return null;
             }
+        }
+
+        public void HandleVisibility(ContentControl uiElement, string action)
+        {
+            if (action.ToUpper() == "DISPLAY") uiElement.Visibility = Visibility.Visible;
+            else if (action.ToUpper() == "HIDE") uiElement.Visibility = Visibility.Hidden;           
+            else if (action.ToUpper() == "COLLAPSE") uiElement.Visibility = Visibility.Collapsed;
+        }
+
+        public void SetTrackInfoVisibility(string action)
+        {
+            HandleVisibility(lblTitle, action);
+            HandleVisibility(lblAlbum, action);
+            HandleVisibility(lblArtist, action);
         }
     }
 }
