@@ -1,8 +1,11 @@
 ﻿using NAudio.Wave;
+using SoundFingerprinting;
 using SoundFingerprinting.Audio;
 using SoundFingerprinting.Builder;
+using SoundFingerprinting.DAO;
 using SoundFingerprinting.DAO.Data;
 using SoundFingerprinting.Emy;
+using SoundFingerprinting.InMemory;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,17 +16,23 @@ namespace SoundtrackSeekerWPFEdition
 {
     public partial class MainWindow : Window
     {
+        private IAdvancedModelService modelService; // store fingerprints in RAM.
         private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
-        private static readonly EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399.       
+        private EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399.       
 
         private static WaveInEvent waveSource = null;
         private static WaveFileWriter waveFile = null;
         private const int SECONDS_TO_LISTEN = 13;
-        public static string tempFile = "";        
+        public static string tempFile = "";
+        private static string lastMatchedSongId;
+        public ITrackDao trackDao;
+
+        private IModelReference imr;
 
         public MainWindow()
         {
             InitializeComponent();
+            modelService = new InMemoryModelService();
         }
 
         private void btnSeek_Click(object sender, RoutedEventArgs e)
@@ -67,8 +76,12 @@ namespace SoundtrackSeekerWPFEdition
 
                 await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    lblTitle.Content = td.Title;
+                    lblTitle.Content = td.Title;                    
                     lblAlbum.Content = foundAlbum;
+                    lblArtist.Content = td.Artist;
+                    //trackDao.DeleteTrack(td.TrackReference);
+                    //lastMatchedSongId = td.Id;
+                    //DeletionTest(lastMatchedSongId); // Don't leave this uncommented!
 
                     SetTrackInfoVisibility("DISPLAY"); // Gotta check this out at home. Have a feeling changes won't be made while the labels are invisible.
                 }), DispatcherPriority.Render);                  
@@ -120,5 +133,18 @@ namespace SoundtrackSeekerWPFEdition
             HandleVisibility(lblAlbum, action);
             HandleVisibility(lblArtist, action);
         }
+
+        // ADMIN Methods
+        private void DeletionTest(string trackID)
+        {
+            emyModelService.DeleteTrack(trackID);    
+            
+            //modelService.DeleteTrack(trackID);           
+        }
+
+        private void btnDeleteTest_Click(object sender, RoutedEventArgs e)
+        {
+            DeletionTest("GPPDS1989360"); // Leave Alone deletion test.            
+        }       
     }
 }

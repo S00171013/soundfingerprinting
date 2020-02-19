@@ -15,5 +15,6 @@
         <Label x:Name="lblAlbum" Visibility ="Hidden" Content="Album" HorizontalAlignment="Center" Margin="0,344,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
         <Label x:Name="lblArtist" Visibility ="Hidden" Content="Artist" HorizontalAlignment="Center" Margin="0,375,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
         <Label x:Name="lblListenMessage" Visibility ="Hidden" Content="Listening!" HorizontalAlignment="Center" Margin="0,83,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" IsEnabled="False"/>
+        <Button x:Name="btnDeleteTest" Content="Delete Test" HorizontalAlignment="Left" Margin="10,217,0,0" VerticalAlignment="Top" Height="77" Width="83" Click="btnDeleteTest_Click"/>
     </Grid>
 </Window>
