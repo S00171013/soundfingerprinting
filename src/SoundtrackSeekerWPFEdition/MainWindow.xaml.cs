@@ -25,13 +25,17 @@ namespace SoundtrackSeekerWPFEdition
         private const int SECONDS_TO_LISTEN = 13;
         public static string tempFile = "";
         private static string lastMatchedSongId;
-        public ITrackDao trackDao;
 
-        private IModelReference imr;
+        private ITrackDao trackDao;
+        //private IModelReference imr;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            //var ramStorage = new RAMStorage(25);
+            //trackDao = new TrackDao(ramStorage);
+
             modelService = new InMemoryModelService();
         }
 
@@ -82,6 +86,7 @@ namespace SoundtrackSeekerWPFEdition
                     //trackDao.DeleteTrack(td.TrackReference);
                     //lastMatchedSongId = td.Id;
                     //DeletionTest(lastMatchedSongId); // Don't leave this uncommented!
+                    
 
                     SetTrackInfoVisibility("DISPLAY"); // Gotta check this out at home. Have a feeling changes won't be made while the labels are invisible.
                 }), DispatcherPriority.Render);                  
@@ -137,7 +142,19 @@ namespace SoundtrackSeekerWPFEdition
         // ADMIN Methods
         private void DeletionTest(string trackID)
         {
-            emyModelService.DeleteTrack(trackID);    
+            TrackData trackToDelete = trackDao.ReadTrackById(trackID);
+
+            MessageBox.Show("For deletion: {0}", trackToDelete.Title);
+
+            //imr.Id = trackID;
+            //try
+            //{
+            //    emyModelService.DeleteTrack(trackToDelete.TrackReference);
+            //}
+            //catch(Exception e)
+            //{
+            //    MessageBox.Show(e.Message);
+            //}
             
             //modelService.DeleteTrack(trackID);           
         }

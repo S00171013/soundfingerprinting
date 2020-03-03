@@ -13,7 +13,7 @@
 
         public TrackDao(IRAMStorage storage)
         {
-            this.storage = storage;
+            this.storage = storage;            
         }
 
         public int Count => storage.Tracks.Count;

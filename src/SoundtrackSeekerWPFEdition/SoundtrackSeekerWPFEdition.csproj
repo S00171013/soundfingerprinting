@@ -15,6 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Queries\query.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
