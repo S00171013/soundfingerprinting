@@ -43,7 +43,7 @@ namespace SoundtrackSeekerWPFEdition
         {
             HandleVisibility(lblListenMessage, "DISPLAY");
             HandleVisibility(btnSeek, "HIDE");
-            SetTrackInfoVisibility("HIDE");        
+            SetTrackInfoVisibility("HIDE");
 
             waveSource = new WaveInEvent();
 
@@ -67,7 +67,7 @@ namespace SoundtrackSeekerWPFEdition
         {
             await Task.Delay(seconds * 1000);
             waveSource.StopRecording();
-            waveFile.Dispose();            
+            waveFile.Dispose();
 
             Task<TrackData> task = Task.Run(async () => await GetBestMatchForSong(tempFile));
 
@@ -75,33 +75,33 @@ namespace SoundtrackSeekerWPFEdition
 
             TrackData td = task.Result; // WaitAndUnwrap here initially.            
             if (td != null)
-            {                
+            {
                 bool albumFound = td.MetaFields.TryGetValue("Album", out string foundAlbum);
 
                 await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    lblTitle.Content = td.Title;                    
+                    lblTitle.Content = td.Title;
                     lblAlbum.Content = foundAlbum;
                     lblArtist.Content = td.Artist;
                     //trackDao.DeleteTrack(td.TrackReference);
                     //lastMatchedSongId = td.Id;
                     //DeletionTest(lastMatchedSongId); // Don't leave this uncommented!
-                    
+
 
                     SetTrackInfoVisibility("DISPLAY"); // Gotta check this out at home. Have a feeling changes won't be made while the labels are invisible.
-                }), DispatcherPriority.Render);                  
+                }), DispatcherPriority.Render);
             }
 
             await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 HandleVisibility(lblListenMessage, "HIDE");
-                HandleVisibility(btnSeek, "DISPLAY");                                
+                HandleVisibility(btnSeek, "DISPLAY");
 
-            }), DispatcherPriority.Render);            
+            }), DispatcherPriority.Render);
         }
 
         public async Task<TrackData> GetBestMatchForSong(string queryAudioFile)
-        {            
+        {
             int secondsToAnalyze = 10; // number of seconds to analyze from query file.
             int startAtSecond = 0; // start at the beginning.
 
@@ -128,7 +128,7 @@ namespace SoundtrackSeekerWPFEdition
         public void HandleVisibility(ContentControl uiElement, string action)
         {
             if (action.ToUpper() == "DISPLAY") uiElement.Visibility = Visibility.Visible;
-            else if (action.ToUpper() == "HIDE") uiElement.Visibility = Visibility.Hidden;           
+            else if (action.ToUpper() == "HIDE") uiElement.Visibility = Visibility.Hidden;
             else if (action.ToUpper() == "COLLAPSE") uiElement.Visibility = Visibility.Collapsed;
         }
 
@@ -140,28 +140,28 @@ namespace SoundtrackSeekerWPFEdition
         }
 
         // ADMIN Methods
-        private void DeletionTest(string trackID)
+        private void DeletionTest(string trackId)
         {
-            TrackData trackToDelete = trackDao.ReadTrackById(trackID);
+            //TrackData trackToDelete = trackDao.ReadTrackById(trackID);
 
-            MessageBox.Show("For deletion: {0}", trackToDelete.Title);
+            //MessageBox.Show("For deletion: {0}", trackToDelete.Title);
 
             //imr.Id = trackID;
             //try
             //{
-            //    emyModelService.DeleteTrack(trackToDelete.TrackReference);
+            emyModelService.DeleteTrack(trackId);
             //}
             //catch(Exception e)
             //{
             //    MessageBox.Show(e.Message);
             //}
-            
+
             //modelService.DeleteTrack(trackID);           
         }
 
         private void btnDeleteTest_Click(object sender, RoutedEventArgs e)
         {
             DeletionTest("GPPDS1989360"); // Leave Alone deletion test.            
-        }       
+        }
     }
 }

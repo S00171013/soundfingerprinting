@@ -29,37 +29,37 @@ namespace SoundtrackSeekerCE
         static void Main(string[] args)
         {
             #region Tracks hashed at home.
-            Dictionary<string, string> metaFieldForTrack1 = new Dictionary<string, string>();
-            metaFieldForTrack1.Add("Album", "Metal Gear (MSX)");
-            Dictionary<string, string> metaFieldForTrack2 = new Dictionary<string, string>();
-            metaFieldForTrack2.Add("Album", "Street Fighter III: New Generation");
-            Dictionary<string, string> metaFieldForTrack3 = new Dictionary<string, string>();
-            metaFieldForTrack3.Add("Album", "Ape Escape");
+            //Dictionary<string, string> metaFieldForTrack1 = new Dictionary<string, string>();
+            //metaFieldForTrack1.Add("Album", "Metal Gear (MSX)");
+            //Dictionary<string, string> metaFieldForTrack2 = new Dictionary<string, string>();
+            //metaFieldForTrack2.Add("Album", "Street Fighter III: New Generation");
+            //Dictionary<string, string> metaFieldForTrack3 = new Dictionary<string, string>();
+            //metaFieldForTrack3.Add("Album", "Ape Escape");
 
-            string trackPath1 = "Test Audio for Storage/01_theme_of_tara.wav";
-            string trackPath2 = "Test Audio for Storage/02_leave_alone.wav";
-            string trackPath3 = "Test Audio for Storage/03_galaxy_monkey.wav";
+            //string trackPath1 = "Test Audio for Storage/01_theme_of_tara.wav";
+            //string trackPath2 = "Test Audio for Storage/02_leave_alone.wav";
+            //string trackPath3 = "Test Audio for Storage/03_galaxy_monkey.wav";
 
-            var track1Info = new TrackInfo(Guid.NewGuid().ToString(), "Theme of Tara", "KONAMI KuKeiHa CLUB", 201, metaFieldForTrack1);
-            var track2Info = new TrackInfo(Guid.NewGuid().ToString(), "Leave Alone", "Yuki Iwai", 134, metaFieldForTrack2);
-            var track3Info = new TrackInfo(Guid.NewGuid().ToString(), "Galaxy Monkey", "Soichi Terada", 201, metaFieldForTrack3);
+            //var track1Info = new TrackInfo(Guid.NewGuid().ToString(), "Theme of Tara", "KONAMI KuKeiHa CLUB");
+            //var track2Info = new TrackInfo(Guid.NewGuid().ToString(), "Leave Alone", "Yuki Iwai");
+            //var track3Info = new TrackInfo(Guid.NewGuid().ToString(), "Galaxy Monkey", "Soichi Terada");
             #endregion
 
             #region New tracks to hash.
-            Dictionary<string, string> metaFieldForTrack4 = new Dictionary<string, string>();
-            metaFieldForTrack4.Add("Album", "Street Fighter III: New Generation");
-            Dictionary<string, string> metaFieldForTrack5 = new Dictionary<string, string>();
-            metaFieldForTrack5.Add("Album", "Street Fighter III: 2nd Impact");
-            Dictionary<string, string> metaFieldForTrack6 = new Dictionary<string, string>();
-            metaFieldForTrack6.Add("Album", "D4: Dark Dreams Don't Die");
+            //Dictionary<string, string> metaFieldForTrack4 = new Dictionary<string, string>();
+            //metaFieldForTrack4.Add("Album", "Street Fighter III: New Generation");
+            //Dictionary<string, string> metaFieldForTrack5 = new Dictionary<string, string>();
+            //metaFieldForTrack5.Add("Album", "Street Fighter III: 2nd Impact");
+            //Dictionary<string, string> metaFieldForTrack6 = new Dictionary<string, string>();
+            //metaFieldForTrack6.Add("Album", "D4: Dark Dreams Don't Die");
 
-            string trackPath4 = "Test Audio for Storage/04_good_fighter.wav";
-            string trackPath5 = "Test Audio for Storage/05_good_fighter_2nd_edit.wav";
-            string trackPath6 = "Test Audio for Storage/06_urban_closet.wav";
+            //string trackPath4 = "Test Audio for Storage/04_good_fighter.wav";
+            //string trackPath5 = "Test Audio for Storage/05_good_fighter_2nd_edit.wav";
+            //string trackPath6 = "Test Audio for Storage/06_urban_closet.wav";
 
-            var track4Info = new TrackInfo(Guid.NewGuid().ToString(), "Good Fighter", "Hideki Okugawa", 200, metaFieldForTrack4);
-            var track5Info = new TrackInfo(Guid.NewGuid().ToString(), "Good Fighter ~2nd Edit", "Hideki Okugawa", 198, metaFieldForTrack5);
-            var track6Info = new TrackInfo(Guid.NewGuid().ToString(), "Urban Closet", "MANYO", 200, metaFieldForTrack6);
+            //var track4Info = new TrackInfo(Guid.NewGuid().ToString(), "Good Fighter", "Hideki Okugawa");
+            //var track5Info = new TrackInfo(Guid.NewGuid().ToString(), "Good Fighter ~2nd Edit", "Hideki Okugawa");
+            //var track6Info = new TrackInfo(Guid.NewGuid().ToString(), "Urban Closet", "MANYO");
             #endregion
 
             #region Hashing (Do not hash pre-hashed tracks).
@@ -159,7 +159,7 @@ namespace SoundtrackSeekerCE
         public static async Task StoreForLaterRetrievalAsync(string pathToAudioFile, Dictionary<string, string> metaFieldIn, TrackInfo trackInfoIn)
         {
             // Connect to Emy on port 3399.
-            //var emyModelService = EmyModelService.NewInstance("localhost", 3399);
+            var emyModelService = EmyModelService.NewInstance("localhost", 3399);
 
             //// TrackInfo from metadata.
             //var track = new TrackInfo("GBBKS1200164", "Theme of Tara", "KONAMI KuKeiHa CLUB", 201, metaFieldIn); // Define track info.
