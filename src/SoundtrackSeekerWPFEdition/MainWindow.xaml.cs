@@ -112,7 +112,7 @@ namespace SoundtrackSeekerWPFEdition
                                                  .Query();
 
             //// Register matches so that they appear in the dashboard.					
-            //if(queryResult != null) emyModelService.RegisterMatches(queryResult.ResultEntries); //This line still causes issues.
+            //if(queryResult != null) emyModelService.RegisterMatches(queryResult.ResultEntries); //This line still causes issues. I should try this again with the new version.
 
             try
             {
@@ -150,6 +150,7 @@ namespace SoundtrackSeekerWPFEdition
             //try
             //{
             emyModelService.DeleteTrack(trackId);
+            
             //}
             //catch(Exception e)
             //{
@@ -161,7 +162,9 @@ namespace SoundtrackSeekerWPFEdition
 
         private void btnDeleteTest_Click(object sender, RoutedEventArgs e)
         {
-            DeletionTest("GPPDS1989360"); // Leave Alone deletion test.            
+            DeletionTest("GPPDS1989360"); // Leave Alone deletion test.  
+            //DeletionTest("85be121e-f991-4d64-a8f4-70e3a8e1282b"); // SFX Deletion Test. It worked in D2037. Gotta test this again at home. 
+            // Could it be that it was a simple sound effect being deleted? Could it be the GUID? Further investigation needed.
         }
     }
 }

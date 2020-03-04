@@ -40,9 +40,11 @@ namespace SoundtrackSeekerCE
             //string trackPath2 = "Test Audio for Storage/02_leave_alone.wav";
             //string trackPath3 = "Test Audio for Storage/03_galaxy_monkey.wav";
 
+
             //var track1Info = new TrackInfo(Guid.NewGuid().ToString(), "Theme of Tara", "KONAMI KuKeiHa CLUB");
             //var track2Info = new TrackInfo(Guid.NewGuid().ToString(), "Leave Alone", "Yuki Iwai");
             //var track3Info = new TrackInfo(Guid.NewGuid().ToString(), "Galaxy Monkey", "Soichi Terada");
+
             #endregion
 
             #region New tracks to hash.
@@ -52,14 +54,18 @@ namespace SoundtrackSeekerCE
             //metaFieldForTrack5.Add("Album", "Street Fighter III: 2nd Impact");
             //Dictionary<string, string> metaFieldForTrack6 = new Dictionary<string, string>();
             //metaFieldForTrack6.Add("Album", "D4: Dark Dreams Don't Die");
+            Dictionary<string, string> metaFieldForTrack7 = new Dictionary<string, string>();
+            metaFieldForTrack7.Add("Album", "P2IS");
 
             //string trackPath4 = "Test Audio for Storage/04_good_fighter.wav";
             //string trackPath5 = "Test Audio for Storage/05_good_fighter_2nd_edit.wav";
             //string trackPath6 = "Test Audio for Storage/06_urban_closet.wav";
+            string trackPath7 = "Test Audio for Storage/CPUWin3.wav";
 
             //var track4Info = new TrackInfo(Guid.NewGuid().ToString(), "Good Fighter", "Hideki Okugawa");
             //var track5Info = new TrackInfo(Guid.NewGuid().ToString(), "Good Fighter ~2nd Edit", "Hideki Okugawa");
             //var track6Info = new TrackInfo(Guid.NewGuid().ToString(), "Urban Closet", "MANYO");
+            var track7Info = new TrackInfo("GPPDS1989360", "CPUWin3", "Tatsuya Suou");
             #endregion
 
             #region Hashing (Do not hash pre-hashed tracks).
@@ -72,6 +78,7 @@ namespace SoundtrackSeekerCE
             //HashTrack(trackPath4, metaFieldForTrack4, track4Info);
             //HashTrack(trackPath5, metaFieldForTrack5, track5Info);
             //HashTrack(trackPath6, metaFieldForTrack6, track6Info);
+            HashTrack(trackPath7, metaFieldForTrack7, track7Info);
             #endregion
 
             do
