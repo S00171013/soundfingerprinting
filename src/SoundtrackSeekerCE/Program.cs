@@ -28,17 +28,17 @@ namespace SoundtrackSeekerCE
 
         static void Main(string[] args)
         {
-            #region Tracks hashed at home.
-            //Dictionary<string, string> metaFieldForTrack1 = new Dictionary<string, string>();
-            //metaFieldForTrack1.Add("Album", "Metal Gear (MSX)");
-            //Dictionary<string, string> metaFieldForTrack2 = new Dictionary<string, string>();
-            //metaFieldForTrack2.Add("Album", "Street Fighter III: New Generation");
-            //Dictionary<string, string> metaFieldForTrack3 = new Dictionary<string, string>();
-            //metaFieldForTrack3.Add("Album", "Ape Escape");
+            #region Tracks hashed at home.            
+            Dictionary<string, string> metaFieldForTrack1 = new Dictionary<string, string>();
+            metaFieldForTrack1.Add("Album", "Metal Gear (MSX)");
+            Dictionary<string, string> metaFieldForTrack2 = new Dictionary<string, string>();
+            metaFieldForTrack2.Add("Album", "Street Fighter III: New Generation");
+            Dictionary<string, string> metaFieldForTrack3 = new Dictionary<string, string>();
+            metaFieldForTrack3.Add("Album", "Ape Escape");
 
-            //string trackPath1 = "Test Audio for Storage/01_theme_of_tara.wav";
-            //string trackPath2 = "Test Audio for Storage/02_leave_alone.wav";
-            //string trackPath3 = "Test Audio for Storage/03_galaxy_monkey.wav";
+            string trackPath1 = "Test Audio for Storage/01_theme_of_tara.wav";
+            string trackPath2 = "Test Audio for Storage/02_leave_alone.wav";
+            string trackPath3 = "Test Audio for Storage/03_galaxy_monkey.wav";
 
 
             //var track1Info = new TrackInfo(Guid.NewGuid().ToString(), "Theme of Tara", "KONAMI KuKeiHa CLUB");
@@ -48,24 +48,24 @@ namespace SoundtrackSeekerCE
             #endregion
 
             #region New tracks to hash.
-            //Dictionary<string, string> metaFieldForTrack4 = new Dictionary<string, string>();
-            //metaFieldForTrack4.Add("Album", "Street Fighter III: New Generation");
-            //Dictionary<string, string> metaFieldForTrack5 = new Dictionary<string, string>();
-            //metaFieldForTrack5.Add("Album", "Street Fighter III: 2nd Impact");
-            //Dictionary<string, string> metaFieldForTrack6 = new Dictionary<string, string>();
-            //metaFieldForTrack6.Add("Album", "D4: Dark Dreams Don't Die");
+            Dictionary<string, string> metaFieldForTrack4 = new Dictionary<string, string>();
+            metaFieldForTrack4.Add("Album", "Street Fighter III: New Generation");
+            Dictionary<string, string> metaFieldForTrack5 = new Dictionary<string, string>();
+            metaFieldForTrack5.Add("Album", "Street Fighter III: 2nd Impact");
+            Dictionary<string, string> metaFieldForTrack6 = new Dictionary<string, string>();
+            metaFieldForTrack6.Add("Album", "D4: Dark Dreams Don't Die");
             Dictionary<string, string> metaFieldForTrack7 = new Dictionary<string, string>();
-            metaFieldForTrack7.Add("Album", "P2IS");
+            metaFieldForTrack7.Add("Album", "Fatal Fury Special");
 
-            //string trackPath4 = "Test Audio for Storage/04_good_fighter.wav";
-            //string trackPath5 = "Test Audio for Storage/05_good_fighter_2nd_edit.wav";
-            //string trackPath6 = "Test Audio for Storage/06_urban_closet.wav";
-            string trackPath7 = "Test Audio for Storage/CPUWin3.wav";
+            string trackPath4 = "Test Audio for Storage/04_good_fighter.wav";
+            string trackPath5 = "Test Audio for Storage/05_good_fighter_2nd_edit.wav";
+            string trackPath6 = "Test Audio for Storage/06_urban_closet.wav";
+            string trackPath7 = "Test Audio for Storage/07_kurikinton.wav"; // Hashing a 16-bit WAV right now. From home.
 
             //var track4Info = new TrackInfo(Guid.NewGuid().ToString(), "Good Fighter", "Hideki Okugawa");
             //var track5Info = new TrackInfo(Guid.NewGuid().ToString(), "Good Fighter ~2nd Edit", "Hideki Okugawa");
             //var track6Info = new TrackInfo(Guid.NewGuid().ToString(), "Urban Closet", "MANYO");
-            var track7Info = new TrackInfo("GPPDS1989360", "CPUWin3", "Tatsuya Suou");
+            //var track7Info = new TrackInfo(Guid.NewGuid().ToString(), "Kurikinton", "Neo Geo Music Performance");
             #endregion
 
             #region Hashing (Do not hash pre-hashed tracks).
@@ -78,7 +78,7 @@ namespace SoundtrackSeekerCE
             //HashTrack(trackPath4, metaFieldForTrack4, track4Info);
             //HashTrack(trackPath5, metaFieldForTrack5, track5Info);
             //HashTrack(trackPath6, metaFieldForTrack6, track6Info);
-            HashTrack(trackPath7, metaFieldForTrack7, track7Info);
+            //HashTrack(trackPath7, metaFieldForTrack7, track7Info);
             #endregion
 
             do
@@ -159,6 +159,7 @@ namespace SoundtrackSeekerCE
         // STORAGE
         public static void HashTrack(string trackPathIn, Dictionary<string, string> metaFieldsIn, TrackInfo trackInfoIn)
         {
+            Console.WriteLine("Hashing Track: {0}", trackInfoIn.Title);
             var task0 = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPathIn, metaFieldsIn, trackInfoIn));
             task0.WaitAndUnwrapException();
         }

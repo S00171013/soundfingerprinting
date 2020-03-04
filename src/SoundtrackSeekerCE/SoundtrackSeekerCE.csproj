@@ -119,7 +119,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Test Audio for Storage\CPUWin3.wav">
+    <Content Include="Test Audio for Storage\07_Kurikinton.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
