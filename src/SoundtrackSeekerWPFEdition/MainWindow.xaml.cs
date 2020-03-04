@@ -82,11 +82,7 @@ namespace SoundtrackSeekerWPFEdition
                 {
                     lblTitle.Content = td.Title;
                     lblAlbum.Content = foundAlbum;
-                    lblArtist.Content = td.Artist;
-                    //trackDao.DeleteTrack(td.TrackReference);
-                    //lastMatchedSongId = td.Id;
-                    //DeletionTest(lastMatchedSongId); // Don't leave this uncommented!
-
+                    lblArtist.Content = td.Artist;                   
 
                     SetTrackInfoVisibility("DISPLAY"); // Gotta check this out at home. Have a feeling changes won't be made while the labels are invisible.
                 }), DispatcherPriority.Render);
@@ -163,7 +159,7 @@ namespace SoundtrackSeekerWPFEdition
         private void btnDeleteTest_Click(object sender, RoutedEventArgs e)
         {
             //DeletionTest("GPPDS1989360"); // Leave Alone deletion test.  
-            DeletionTest("c50f8b3b-4e65-474f-b552-63a936aa7d62"); // Deletion Test. It worked in D2037. Gotta test this again at home. 
+            //DeletionTest("c50f8b3b-4e65-474f-b552-63a936aa7d62"); // Deletion Test. It worked in D2037. Gotta test this again at home. 
             // Could it be that it was a simple sound effect being deleted? Could it be the GUID? Further investigation needed.
         }
     }
