@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Nito.AsyncEx.Synchronous;
 using SoundFingerprinting;
 using SoundFingerprinting.Audio;
+using SoundFingerprinting.Audio.NAudio;
 using SoundFingerprinting.Builder;
 using SoundFingerprinting.DAO.Data;
 using SoundFingerprinting.Data;
@@ -17,7 +18,9 @@ namespace SoundtrackSeekerCE
     class Program
     {
         private static readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM.
-        private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
+        private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library.
+        private static readonly IAudioService nAudioService = new NAudioService();
+
         private static readonly EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399. Is it necessary to connect in each method? I'll investigate later.       
 
         private static WaveInEvent waveSource = null;
@@ -28,6 +31,8 @@ namespace SoundtrackSeekerCE
 
         static void Main(string[] args)
         {
+            //foreach(var format in nAudioService.SupportedFormats) Console.WriteLine(format.ToString()); // Display NAudio's supported formats.        
+
             #region Tracks hashed at home.            
             //Dictionary<string, string> metaFieldForTrack1 = new Dictionary<string, string>();
             //metaFieldForTrack1.Add("Album", "Metal Gear (MSX)");
@@ -57,15 +62,30 @@ namespace SoundtrackSeekerCE
             //Dictionary<string, string> metaFieldForTrack7 = new Dictionary<string, string>();
             //metaFieldForTrack7.Add("Album", "Fatal Fury Special");
 
+            //Dictionary<string, string> metaFieldForTrack8 = new Dictionary<string, string>();
+            //metaFieldForTrack8.Add("Album", "Crash Bandicoot 2: Cortex Strikes Back");
+            Dictionary<string, string> metaFieldForTrack9 = new Dictionary<string, string>();
+            metaFieldForTrack9.Add("Album", "Ape Escape 3");
+            Dictionary<string, string> metaFieldForTrack10 = new Dictionary<string, string>();
+            metaFieldForTrack10.Add("Album", "Street Fighter EX -Arrange Sound Trax-");
+
             //string trackPath4 = "Test Audio for Storage/04_good_fighter.wav";
             //string trackPath5 = "Test Audio for Storage/05_good_fighter_2nd_edit.wav";
             //string trackPath6 = "Test Audio for Storage/06_urban_closet.wav";
-            //string trackPath7 = "Test Audio for Storage/07_kurikinton.wav"; // Hashing a 16-bit WAV right now. From home.
+            //string trackPath7 = "Test Audio for Storage/07_kurikinton.wav"; 
+
+            //string trackPath8 = "Test Audio for Storage/55 - Rock It, Pack Attack.mp3"; // Hashing an MP3 file now. From home.
+            string trackPath9 = "Test Audio for Storage/3.08-eversummer-island.mp3";
+            string trackPath10 = "Test Audio for Storage/god_hands_ast.mp3";
 
             //var track4Info = new TrackInfo(Guid.NewGuid().ToString(), "Good Fighter", "Hideki Okugawa", metaFieldForTrack4, MediaType.Audio);
             //var track5Info = new TrackInfo(Guid.NewGuid().ToString(), "Good Fighter ~2nd Edit", "Hideki Okugawa", metaFieldForTrack5, MediaType.Audio);
             //var track6Info = new TrackInfo(Guid.NewGuid().ToString(), "Urban Closet", "MANYO", metaFieldForTrack6, MediaType.Audio);
             //var track7Info = new TrackInfo(Guid.NewGuid().ToString(), "Kurikinton", "Neo Geo Music Performance Group", metaFieldForTrack7, MediaType.Audio);
+
+            //var track8Info = new TrackInfo(Guid.NewGuid().ToString(), "Pack Attack", "Josh Mancell", metaFieldForTrack8, MediaType.Audio);
+            var track9Info = new TrackInfo(Guid.NewGuid().ToString(), "Eversummer Island", "Soichi Terada", metaFieldForTrack9, MediaType.Audio);
+            var track10Info = new TrackInfo(Guid.NewGuid().ToString(), "God Hands ~AST Ver", "Takayuki Aihara, Ayumi Yasui", metaFieldForTrack10, MediaType.Audio);
             #endregion
 
             #region Hashing (Do not hash pre-hashed tracks).
@@ -79,6 +99,10 @@ namespace SoundtrackSeekerCE
             //HashTrack(trackPath5, track5Info);
             //HashTrack(trackPath6, track6Info);
             //HashTrack(trackPath7, track7Info);
+
+            //HashTrack(trackPath8, track8Info);
+            //HashTrack(trackPath9, track9Info);
+            //HashTrack(trackPath10, track10Info);
             #endregion
 
             do
@@ -176,11 +200,11 @@ namespace SoundtrackSeekerCE
             var hashedFingerprints = await FingerprintCommandBuilder.Instance
                                         .BuildFingerprintCommand()
                                         .From(pathToAudioFile)
-                                        .UsingServices(audioService)
-                                        .Hash();
+                                        .UsingServices(nAudioService)
+                                        .Hash();      
 
             // Store hashes in the database for later retrieval.
-            emyModelService.Insert(trackInfoIn, hashedFingerprints);
+            emyModelService.Insert(trackInfoIn, hashedFingerprints);            
         }
 
         // QUERIES  
@@ -196,7 +220,7 @@ namespace SoundtrackSeekerCE
             // query the underlying database for similar audio sub-fingerprints.
             var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
                                                  .From(queryAudioFile, secondsToAnalyze, startAtSecond)
-                                                 .UsingServices(emyModelService, audioService)
+                                                 .UsingServices(emyModelService, nAudioService)
                                                  .Query();
 
             //// Register matches so that they appear in the dashboard.					
