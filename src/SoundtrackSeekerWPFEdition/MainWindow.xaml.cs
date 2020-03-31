@@ -4,6 +4,7 @@ using SoundFingerprinting.Audio;
 using SoundFingerprinting.Builder;
 using SoundFingerprinting.DAO;
 using SoundFingerprinting.DAO.Data;
+using SoundFingerprinting.Data;
 using SoundFingerprinting.Emy;
 using SoundFingerprinting.InMemory;
 using System;
@@ -15,8 +16,7 @@ using System.Windows.Threading;
 namespace SoundtrackSeekerWPFEdition
 {
     public partial class MainWindow : Window
-    {
-        private IAdvancedModelService modelService; // store fingerprints in RAM.
+    {       
         private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
         private EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399.       
 
@@ -24,19 +24,11 @@ namespace SoundtrackSeekerWPFEdition
         private static WaveFileWriter waveFile = null;
         private const int SECONDS_TO_LISTEN = 13;
         public static string tempFile = "";
-        private static string lastMatchedSongId;
-
-        private ITrackDao trackDao;
-        //private IModelReference imr;
+        private static string lastMatchedSongId;       
 
         public MainWindow()
         {
-            InitializeComponent();
-
-            //var ramStorage = new RAMStorage(25);
-            //trackDao = new TrackDao(ramStorage);
-
-            modelService = new InMemoryModelService();
+            InitializeComponent();            
         }
 
         private void btnSeek_Click(object sender, RoutedEventArgs e)
@@ -138,15 +130,39 @@ namespace SoundtrackSeekerWPFEdition
         // ADMIN Methods
         private void DeletionTest(string trackId)
         {
-            //TrackData trackToDelete = trackDao.ReadTrackById(trackID);
+            TrackInfo trackToDelete = null;
+            try
+            {
+            trackToDelete = emyModelService.ReadTrackById(trackId);            
+            }
+            catch
+            {
+                if (trackToDelete == null) MessageBox.Show(String.Format("No track exists with this ID: {0}", trackId));
+            }
+            finally
+            {
+                if (trackToDelete != null)
+                {
+                    //emyModelService.DeleteTrack(trackId);
+                    if (trackToDelete != null)
+                    {
+                        bool albumFound = trackToDelete.MetaFields.TryGetValue("Album", out string album);
+                        MessageBox.Show(String.Format("{0}'s track '{1}' from the album '{2}' has been deleted.",
+                            trackToDelete.Artist, trackToDelete.Title, album));
+                    }
+                }
+            }
+
+            //else
+            //{
+            //emyModelService.DeleteTrack(trackId);
+            //}
 
             //MessageBox.Show("For deletion: {0}", trackToDelete.Title);
 
             //imr.Id = trackID;
             //try
-            //{
-            emyModelService.DeleteTrack(trackId);
-            
+            //{                       
             //}
             //catch(Exception e)
             //{
@@ -157,10 +173,14 @@ namespace SoundtrackSeekerWPFEdition
         }
 
         private void btnDeleteTest_Click(object sender, RoutedEventArgs e)
+        {           
+            DeletionTest(tbxAdminInput.Text); // Confirmed to work.
+            //DeletionTest("2cc46af0-059f-4995-9eb7-80c724446ec9");
+        }
+
+        private void btnHashTracks_Click(object sender, RoutedEventArgs e)
         {
-            //DeletionTest("GPPDS1989360"); // Leave Alone deletion test.  
-            //DeletionTest("c50f8b3b-4e65-474f-b552-63a936aa7d62"); // Deletion Test. It worked in D2037. Gotta test this again at home. 
-            // Could it be that it was a simple sound effect being deleted? Could it be the GUID? Further investigation needed.
+
         }
     }
 }
