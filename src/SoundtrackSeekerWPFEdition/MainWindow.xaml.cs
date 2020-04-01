@@ -1,6 +1,8 @@
-﻿using NAudio.Wave;
+﻿using HundredMilesSoftware.UltraID3Lib;
+using NAudio.Wave;
 using SoundFingerprinting;
 using SoundFingerprinting.Audio;
+using SoundFingerprinting.Audio.NAudio;
 using SoundFingerprinting.Builder;
 using SoundFingerprinting.DAO;
 using SoundFingerprinting.DAO.Data;
@@ -8,6 +10,7 @@ using SoundFingerprinting.Data;
 using SoundFingerprinting.Emy;
 using SoundFingerprinting.InMemory;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,7 +22,9 @@ namespace SoundtrackSeekerWPFEdition
     {
         private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
         private EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399.       
+        private static readonly IAudioService nAudioService = new NAudioService();
 
+        UltraID3 u = new UltraID3();
         private static WaveInEvent waveSource = null;
         private static WaveFileWriter waveFile = null;
         private const int SECONDS_TO_LISTEN = 13;
@@ -129,35 +134,51 @@ namespace SoundtrackSeekerWPFEdition
 
         // ADMIN Methods
         #region TRACK HASHING
-        //public static void HashTrack(string trackPathIn, TrackInfo trackInfoIn)
-        //{
-        //    Console.WriteLine("Hashing Track: {0}", trackInfoIn.Title);
-        //    var task0 = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPathIn, trackInfoIn));
-        //    task0.WaitAndUnwrapException();
-        //}
-        private void btnHashTracks_Click(object sender, RoutedEventArgs e)
+        public void HashTrack(string trackPathIn, TrackInfo trackInfoIn)
         {
+            lbxOutput.Items.Add(String.Format("Hashing Track: '{0}' by {1}.", trackInfoIn.Title, trackInfoIn.Artist));            
+            var task = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPathIn, trackInfoIn));
+            task.Wait(); // WaitAndUnwrapException in the console version. May have to fix something here.
+        }
+        private void btnHashTracks_Click(object sender, RoutedEventArgs e)
+        {           
+            // Get track info.  
+            try
+            {
+                u.Read(tbxAdminInput.Text);
+                //MessageBox.Show(String.Format("{0}, {1}, {2}, {3}, {4}", u.Title, u.Album, u.Artist, Math.Round(u.Duration.TotalSeconds, 2), u.Year.ToString()));
 
+                // Metafield setup.
+                Dictionary<string, string> newTrackMetaField = new Dictionary<string, string>();
+                newTrackMetaField.Add("Album", u.Album);
+                newTrackMetaField.Add("Genre", u.Genre);
+                newTrackMetaField.Add("Year", u.Year.ToString());
+                newTrackMetaField.Add("Duration", Math.Round(u.Duration.TotalSeconds, 2).ToString());
+
+                TrackInfo newTrackInfo = new TrackInfo(Guid.NewGuid().ToString(), u.Title, u.Artist, newTrackMetaField, MediaType.Audio);
+                HashTrack(tbxAdminInput.Text, newTrackInfo);
+            }
+            catch
+            {
+                MessageBox.Show("Invalid directory input.");
+            }
         }
 
-        //public static async Task StoreForLaterRetrievalAsync(string pathToAudioFile, TrackInfo trackInfoIn)
-        //{
-        //    // Connect to Emy on port 3399.
-        //    var emyModelService = EmyModelService.NewInstance("localhost", 3399);
+        public static async Task StoreForLaterRetrievalAsync(string pathToAudioFile, TrackInfo trackInfoIn)
+        {
+            // Connect to Emy on port 3399.
+            var emyModelService = EmyModelService.NewInstance("localhost", 3399);            
 
-        //    //// TrackInfo from metadata.
-        //    //var track = new TrackInfo("GBBKS1200164", "Theme of Tara", "KONAMI KuKeiHa CLUB", 201, metaFieldIn); // Define track info.
+            // Create fingerprints.
+            var hashedFingerprints = await FingerprintCommandBuilder.Instance
+                                        .BuildFingerprintCommand()
+                                        .From(pathToAudioFile)
+                                        .UsingServices(nAudioService)
+                                        .Hash();
 
-        //    // Create fingerprints.
-        //    var hashedFingerprints = await FingerprintCommandBuilder.Instance
-        //                                .BuildFingerprintCommand()
-        //                                .From(pathToAudioFile)
-        //                                .UsingServices(nAudioService)
-        //                                .Hash();
-
-        //    // Store hashes in the database for later retrieval.
-        //    emyModelService.Insert(trackInfoIn, hashedFingerprints);
-        //}
+            // Store hashes in the database for later retrieval.
+            emyModelService.Insert(trackInfoIn, hashedFingerprints);
+        }
         #endregion
 
         #region TRACK HASH DELETION
@@ -174,7 +195,7 @@ namespace SoundtrackSeekerWPFEdition
                 MessageBox.Show(String.Format("{0}'s track '{1}' from the album '{2}' has been deleted.",
                     trackToDelete.Artist, trackToDelete.Title, album));
 
-                trackToDelete = null;               
+                trackToDelete = null;
             }
 
             else if (trackToDelete == null)

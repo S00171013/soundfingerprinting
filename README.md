@@ -158,6 +158,9 @@ Links to the third party libraries used by _soundfingerprinting_ project.
 * [LomontFFT](http://www.lomont.org/Software/Misc/FFT/LomontFFT.html)
 * [ProtobufNet](https://github.com/mgravell/protobuf-net)
 
+VGM Seeker uses [UltraID3Lib](www.UltraID3Lib.com), an MP3 ID3 Tag Editor and MPEG Info Reader Library
+Copyright 2002 - 2010 [Hundred Miles Software](www.HundredMilesSoftware.com) (Mitchell S. Honnert).
+
 ### FAQ
 - Can I apply this algorithm for speech recognition purposes?
 > No. The granularity of one fingerprint is roughly ~1.46 seconds.

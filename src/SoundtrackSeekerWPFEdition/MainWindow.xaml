@@ -24,7 +24,7 @@
                 <TextBox Name="tbxAdminInput" HorizontalAlignment="Center" Margin="0,142,0,0" Text="" FontSize="12"  VerticalAlignment="Top" Width="374" Height="19"/>
                 <Button x:Name="btnDeleteTrack" Content="Delete Track" Margin="228,0,78,0" VerticalAlignment="Center" Height="31" Click="btnDeleteTrack_Click"/>
                 <Button x:Name="btnHashTracks" Content="Hash Tracks" VerticalAlignment="Center" Height="31" Margin="84,0,0,0" HorizontalAlignment="Left" Width="82" Click="btnHashTracks_Click"/>
-                <ListBox Name ="lbxOutput" Margin="10,244,10,10"/>
+                <ListBox x:Name ="lbxOutput" Margin="10,244,10,10"/>
             </Grid>
         </TabItem>
     </TabControl>
