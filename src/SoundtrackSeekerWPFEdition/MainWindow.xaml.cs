@@ -16,7 +16,7 @@ using System.Windows.Threading;
 namespace SoundtrackSeekerWPFEdition
 {
     public partial class MainWindow : Window
-    {       
+    {
         private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
         private EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399.       
 
@@ -24,11 +24,11 @@ namespace SoundtrackSeekerWPFEdition
         private static WaveFileWriter waveFile = null;
         private const int SECONDS_TO_LISTEN = 13;
         public static string tempFile = "";
-        private static string lastMatchedSongId;       
+        private static string lastMatchedSongId;
 
         public MainWindow()
         {
-            InitializeComponent();            
+            InitializeComponent();
         }
 
         private void btnSeek_Click(object sender, RoutedEventArgs e)
@@ -74,7 +74,7 @@ namespace SoundtrackSeekerWPFEdition
                 {
                     lblTitle.Content = td.Title;
                     lblAlbum.Content = foundAlbum;
-                    lblArtist.Content = td.Artist;                   
+                    lblArtist.Content = td.Artist;
 
                     SetTrackInfoVisibility("DISPLAY"); // Gotta check this out at home. Have a feeling changes won't be made while the labels are invisible.
                 }), DispatcherPriority.Render);
@@ -131,51 +131,28 @@ namespace SoundtrackSeekerWPFEdition
         private void DeletionTest(string trackId)
         {
             TrackInfo trackToDelete = null;
-            try
+
+            trackToDelete = emyModelService.ReadTrackById(trackId);
+
+            if (trackToDelete != null)
             {
-            trackToDelete = emyModelService.ReadTrackById(trackId);            
-            }
-            catch
-            {
-                if (trackToDelete == null) MessageBox.Show(String.Format("No track exists with this ID: {0}", trackId));
-            }
-            finally
-            {
-                if (trackToDelete != null)
-                {
-                    //emyModelService.DeleteTrack(trackId);
-                    if (trackToDelete != null)
-                    {
-                        bool albumFound = trackToDelete.MetaFields.TryGetValue("Album", out string album);
-                        MessageBox.Show(String.Format("{0}'s track '{1}' from the album '{2}' has been deleted.",
-                            trackToDelete.Artist, trackToDelete.Title, album));
-                    }
-                }
+                emyModelService.DeleteTrack(trackId);
+                bool albumFound = trackToDelete.MetaFields.TryGetValue("Album", out string album);
+                MessageBox.Show(String.Format("{0}'s track '{1}' from the album '{2}' has been deleted.",
+                    trackToDelete.Artist, trackToDelete.Title, album));
+
+                trackToDelete = null;               
             }
 
-            //else
-            //{
-            //emyModelService.DeleteTrack(trackId);
-            //}
-
-            //MessageBox.Show("For deletion: {0}", trackToDelete.Title);
-
-            //imr.Id = trackID;
-            //try
-            //{                       
-            //}
-            //catch(Exception e)
-            //{
-            //    MessageBox.Show(e.Message);
-            //}
-
-            //modelService.DeleteTrack(trackID);           
+            else if (trackToDelete == null)
+            {
+                MessageBox.Show(String.Format("No track exists with this ID: {0}", trackId));
+            }
         }
 
         private void btnDeleteTest_Click(object sender, RoutedEventArgs e)
-        {           
-            DeletionTest(tbxAdminInput.Text); // Confirmed to work.
-            //DeletionTest("2cc46af0-059f-4995-9eb7-80c724446ec9");
+        {
+            DeletionTest(tbxAdminInput.Text); // Confirmed to work.                                              
         }
 
         private void btnHashTracks_Click(object sender, RoutedEventArgs e)
