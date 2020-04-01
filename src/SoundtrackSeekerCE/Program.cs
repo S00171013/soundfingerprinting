@@ -62,8 +62,8 @@ namespace SoundtrackSeekerCE
             //Dictionary<string, string> metaFieldForTrack7 = new Dictionary<string, string>();
             //metaFieldForTrack7.Add("Album", "Fatal Fury Special");
 
-            //Dictionary<string, string> metaFieldForTrack8 = new Dictionary<string, string>();
-            //metaFieldForTrack8.Add("Album", "Crash Bandicoot 2: Cortex Strikes Back");
+            Dictionary<string, string> metaFieldForTrack8 = new Dictionary<string, string>();
+            metaFieldForTrack8.Add("Album", "Crash Bandicoot 2: Cortex Strikes Back");
             Dictionary<string, string> metaFieldForTrack9 = new Dictionary<string, string>();
             metaFieldForTrack9.Add("Album", "Ape Escape 3");
             Dictionary<string, string> metaFieldForTrack10 = new Dictionary<string, string>();
@@ -74,7 +74,7 @@ namespace SoundtrackSeekerCE
             //string trackPath6 = "Test Audio for Storage/06_urban_closet.wav";
             //string trackPath7 = "Test Audio for Storage/07_kurikinton.wav"; 
 
-            //string trackPath8 = "Test Audio for Storage/55 - Rock It, Pack Attack.mp3"; // Hashing an MP3 file now. From home.
+            string trackPath8 = "Test Audio for Storage/55 - Rock It, Pack Attack.mp3"; // Hashing an MP3 file now. From home.
             string trackPath9 = "Test Audio for Storage/3.08-eversummer-island.mp3";
             string trackPath10 = "Test Audio for Storage/god_hands_ast.mp3";
 
@@ -83,7 +83,7 @@ namespace SoundtrackSeekerCE
             //var track6Info = new TrackInfo(Guid.NewGuid().ToString(), "Urban Closet", "MANYO", metaFieldForTrack6, MediaType.Audio);
             //var track7Info = new TrackInfo(Guid.NewGuid().ToString(), "Kurikinton", "Neo Geo Music Performance Group", metaFieldForTrack7, MediaType.Audio);
 
-            //var track8Info = new TrackInfo(Guid.NewGuid().ToString(), "Pack Attack", "Josh Mancell", metaFieldForTrack8, MediaType.Audio);
+            var track8Info = new TrackInfo(Guid.NewGuid().ToString(), "Pack Attack", "Josh Mancell", metaFieldForTrack8, MediaType.Audio);
             var track9Info = new TrackInfo(Guid.NewGuid().ToString(), "Eversummer Island", "Soichi Terada", metaFieldForTrack9, MediaType.Audio);
             var track10Info = new TrackInfo(Guid.NewGuid().ToString(), "God Hands ~AST Ver", "Takayuki Aihara, Ayumi Yasui", metaFieldForTrack10, MediaType.Audio);
             #endregion
@@ -107,7 +107,7 @@ namespace SoundtrackSeekerCE
 
             do
             {
-                Console.WriteLine("Welcome to Soundtrack Seeker Console Edition!");
+                Console.WriteLine("\nWelcome to Soundtrack Seeker Console Edition!");
                 Console.WriteLine("Enter any input to seek.");
                 Console.WriteLine("\nType 'quit' if you want to exit Soundtrack Seeker.\n");
                 //Console.WriteLine("\n0: Insert Track 1\n1: Insert Track 3\n2: Query Track 1\n3: Query 'Leave Alone'\n4: Seek...");

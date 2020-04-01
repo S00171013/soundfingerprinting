@@ -22,7 +22,7 @@
             <Grid>
                 <TextBlock HorizontalAlignment="Center" Margin="0,36,0,0" Text="To hash MP3 tracks in a certain directory, paste the directory address into the textbox below and click the 'Hash Tracks' button. If you wish instead to delete a hashed track, input its unique track ID into the textbox below and click the 'Delete Track' button." TextWrapping="Wrap" VerticalAlignment="Top" Height="71" Width="374"/>
                 <TextBox Name="tbxAdminInput" HorizontalAlignment="Center" Margin="0,142,0,0" Text="" FontSize="12"  VerticalAlignment="Top" Width="374" Height="19"/>
-                <Button x:Name="btnDeleteTest" Content="Delete Track" Margin="228,0,78,0" VerticalAlignment="Center" Height="31" Click="btnDeleteTest_Click"/>
+                <Button x:Name="btnDeleteTrack" Content="Delete Track" Margin="228,0,78,0" VerticalAlignment="Center" Height="31" Click="btnDeleteTrack_Click"/>
                 <Button x:Name="btnHashTracks" Content="Hash Tracks" VerticalAlignment="Center" Height="31" Margin="84,0,0,0" HorizontalAlignment="Left" Width="82" Click="btnHashTracks_Click"/>
                 <ListBox Name ="lbxOutput" Margin="10,244,10,10"/>
             </Grid>

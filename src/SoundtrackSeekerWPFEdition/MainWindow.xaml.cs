@@ -128,7 +128,40 @@ namespace SoundtrackSeekerWPFEdition
         }
 
         // ADMIN Methods
-        private void DeletionTest(string trackId)
+        #region TRACK HASHING
+        //public static void HashTrack(string trackPathIn, TrackInfo trackInfoIn)
+        //{
+        //    Console.WriteLine("Hashing Track: {0}", trackInfoIn.Title);
+        //    var task0 = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPathIn, trackInfoIn));
+        //    task0.WaitAndUnwrapException();
+        //}
+        private void btnHashTracks_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        //public static async Task StoreForLaterRetrievalAsync(string pathToAudioFile, TrackInfo trackInfoIn)
+        //{
+        //    // Connect to Emy on port 3399.
+        //    var emyModelService = EmyModelService.NewInstance("localhost", 3399);
+
+        //    //// TrackInfo from metadata.
+        //    //var track = new TrackInfo("GBBKS1200164", "Theme of Tara", "KONAMI KuKeiHa CLUB", 201, metaFieldIn); // Define track info.
+
+        //    // Create fingerprints.
+        //    var hashedFingerprints = await FingerprintCommandBuilder.Instance
+        //                                .BuildFingerprintCommand()
+        //                                .From(pathToAudioFile)
+        //                                .UsingServices(nAudioService)
+        //                                .Hash();
+
+        //    // Store hashes in the database for later retrieval.
+        //    emyModelService.Insert(trackInfoIn, hashedFingerprints);
+        //}
+        #endregion
+
+        #region TRACK HASH DELETION
+        private void DeleteTrack(string trackId)
         {
             TrackInfo trackToDelete = null;
 
@@ -149,15 +182,10 @@ namespace SoundtrackSeekerWPFEdition
                 MessageBox.Show(String.Format("No track exists with this ID: {0}", trackId));
             }
         }
-
-        private void btnDeleteTest_Click(object sender, RoutedEventArgs e)
+        private void btnDeleteTrack_Click(object sender, RoutedEventArgs e)
         {
-            DeletionTest(tbxAdminInput.Text); // Confirmed to work.                                              
+            DeleteTrack(tbxAdminInput.Text); // Confirmed to work.                                              
         }
-
-        private void btnHashTracks_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
+        #endregion
     }
 }
