@@ -11,6 +11,8 @@ using SoundFingerprinting.Emy;
 using SoundFingerprinting.InMemory;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,7 +23,7 @@ namespace SoundtrackSeekerWPFEdition
     public partial class MainWindow : Window
     {
         private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
-        private EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399.       
+        private static EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399.       
         private static readonly IAudioService nAudioService = new NAudioService();
 
         UltraID3 u = new UltraID3();
@@ -33,6 +35,7 @@ namespace SoundtrackSeekerWPFEdition
 
         public MainWindow()
         {
+            //EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399);
             InitializeComponent();
         }
 
@@ -134,40 +137,64 @@ namespace SoundtrackSeekerWPFEdition
 
         // ADMIN Methods
         #region TRACK HASHING
-        public void HashTrack(string trackPathIn, TrackInfo trackInfoIn)
+        private void HashTrack(string trackPathIn, TrackInfo trackInfoIn) // We want to pass in a list of "TrackInfo" objects here.
         {
             lbxOutput.Items.Add(String.Format("Hashing Track: '{0}' by {1}.", trackInfoIn.Title, trackInfoIn.Artist));            
             var task = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPathIn, trackInfoIn));
-            task.Wait(); // WaitAndUnwrapException in the console version. May have to fix something here.
+            task.Wait(); // WaitAndUnwrapException in the console version. May have to fix something here.            
         }
+
+        private TrackInfo ExtractTrackInfo(string trackFilePathIn)
+        {
+            u.Read(trackFilePathIn);            
+
+            // Metafield setup.
+            Dictionary<string, string> newTrackMetaField = new Dictionary<string, string>();
+            newTrackMetaField.Add("Album", u.Album);
+            newTrackMetaField.Add("Genre", u.Genre);
+            newTrackMetaField.Add("Year", u.Year.ToString());
+            newTrackMetaField.Add("Duration", Math.Round(u.Duration.TotalSeconds, 2).ToString());
+
+            TrackInfo extractedTrackInfo = new TrackInfo(Guid.NewGuid().ToString(), u.Title, u.Artist, newTrackMetaField, MediaType.Audio);
+            return extractedTrackInfo;
+        }
+
         private void btnHashTracks_Click(object sender, RoutedEventArgs e)
-        {           
+        {
+            //string sourceDirectory = @"C:\Users\Jack\Downloads\Test";
+            btnHashTracks.Visibility = Visibility.Hidden;
+            lblHashingMessage.Visibility = Visibility.Visible;
+            List<string> filesToHash = new List<string>();
+
+            //MessageBox.Show("Commencing hashing.");
+
             // Get track info.  
             try
             {
-                u.Read(tbxAdminInput.Text);
-                //MessageBox.Show(String.Format("{0}, {1}, {2}, {3}, {4}", u.Title, u.Album, u.Artist, Math.Round(u.Duration.TotalSeconds, 2), u.Year.ToString()));
+                filesToHash = Directory.EnumerateFiles(tbxAdminInput.Text, "*.mp3").ToList();               
 
-                // Metafield setup.
-                Dictionary<string, string> newTrackMetaField = new Dictionary<string, string>();
-                newTrackMetaField.Add("Album", u.Album);
-                newTrackMetaField.Add("Genre", u.Genre);
-                newTrackMetaField.Add("Year", u.Year.ToString());
-                newTrackMetaField.Add("Duration", Math.Round(u.Duration.TotalSeconds, 2).ToString());
+                foreach(string trackFilePath in filesToHash)
+                {
+                    TrackInfo newTrackInfo = ExtractTrackInfo(trackFilePath);
+                    HashTrack(trackFilePath, newTrackInfo);
+                }
 
-                TrackInfo newTrackInfo = new TrackInfo(Guid.NewGuid().ToString(), u.Title, u.Artist, newTrackMetaField, MediaType.Audio);
-                HashTrack(tbxAdminInput.Text, newTrackInfo);
+                lblHashingMessage.Visibility = Visibility.Hidden;
+                btnHashTracks.Visibility = Visibility.Visible;
             }
-            catch
+            catch(Exception ex)
             {
-                MessageBox.Show("Invalid directory input.");
+                //MessageBox.Show("Invalid directory input.");
+                MessageBox.Show(ex.Message);
+                lblHashingMessage.Visibility = Visibility.Hidden;
+                btnHashTracks.Visibility = Visibility.Visible;               
             }
         }
 
         public static async Task StoreForLaterRetrievalAsync(string pathToAudioFile, TrackInfo trackInfoIn)
         {
             // Connect to Emy on port 3399.
-            var emyModelService = EmyModelService.NewInstance("localhost", 3399);            
+            //var emyModelService = EmyModelService.NewInstance("localhost", 3399); // It seems that it's unnecessary to create a new connection each time.   
 
             // Create fingerprints.
             var hashedFingerprints = await FingerprintCommandBuilder.Instance
@@ -196,16 +223,22 @@ namespace SoundtrackSeekerWPFEdition
                     trackToDelete.Artist, trackToDelete.Title, album));
 
                 trackToDelete = null;
+                lblDeletingMessage.Visibility = Visibility.Hidden;
+                btnDeleteTrack.Visibility = Visibility.Visible;               
             }
 
             else if (trackToDelete == null)
             {
                 MessageBox.Show(String.Format("No track exists with this ID: {0}", trackId));
+                lblDeletingMessage.Visibility = Visibility.Hidden;
+                btnDeleteTrack.Visibility = Visibility.Visible;
             }
         }
         private void btnDeleteTrack_Click(object sender, RoutedEventArgs e)
         {
-            DeleteTrack(tbxAdminInput.Text); // Confirmed to work.                                              
+            btnDeleteTrack.Visibility = Visibility.Hidden;
+            lblDeletingMessage.Visibility = Visibility.Visible;
+            DeleteTrack(tbxAdminInput.Text);                                             
         }
         #endregion
     }

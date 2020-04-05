@@ -25,6 +25,8 @@
                 <Button x:Name="btnDeleteTrack" Content="Delete Track" Margin="228,0,78,0" VerticalAlignment="Center" Height="31" Click="btnDeleteTrack_Click"/>
                 <Button x:Name="btnHashTracks" Content="Hash Tracks" VerticalAlignment="Center" Height="31" Margin="84,0,0,0" HorizontalAlignment="Left" Width="82" Click="btnHashTracks_Click"/>
                 <ListBox x:Name ="lbxOutput" Margin="10,244,10,10"/>
+                <Label Name="lblHashingMessage" Content="Hashing..." Visibility="Hidden" HorizontalAlignment="Left" Margin="94,0,0,0" VerticalAlignment="Center"/>
+                <Label Name="lblDeletingMessage" Content="Deleting..." Visibility="Hidden" HorizontalAlignment="Left" Margin="241,0,0,0" VerticalAlignment="Center"/>
             </Grid>
         </TabItem>
     </TabControl>

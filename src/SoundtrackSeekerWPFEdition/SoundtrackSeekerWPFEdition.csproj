@@ -28,13 +28,25 @@
     <None Update="Queries\query.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Test Audio for Storage\1.17-simian-citadel.mp3">
+    <None Update="Test Audio for Storage\01 - Jazzy-Nyc [Latin Mix].mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Test Audio for Storage\115-mysterious-age-cryptic-relics.mp3">
+    <None Update="Test Audio for Storage\01_JAZZY_NYC_99.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Test Audio for Storage\3.18-tomoki-city.mp3">
+    <None Update="Test Audio for Storage\05 - Jazzy-NYC %28underground edit%29 ~Stage New York 1~.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test Audio for Storage\10 - Jazzy-Nyc [Light Edit].mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test Audio for Storage\16 - Jazzy Nyc %28Ny House Mix%29 ~ New York ~ Alex Stage.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test Audio for Storage\18 - Jazzy-NYC %28street edit%29 ~Stage New York 2~.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test Audio for Storage\Jazzy NYC 99 %28Sunset Remix%29.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
