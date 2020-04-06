@@ -5,16 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SoundtrackSeekerWPFEdition"
         mc:Ignorable="d"
-        Title="Soundtrack Seeker" Height="470" Width="400">
+        WindowState="Normal" ResizeMode="CanMinimize"
+        Title="Soundtrack Seeker" Height="490" Width="600">
     <TabControl>
         <TabItem Header="App">
             <Grid>
                 <Label x:Name="lblAppName" Content="Soundtrack Seeker" HorizontalAlignment="Center" Margin="0,33,0,0" VerticalAlignment="Top" FontSize="30" FontWeight="Bold"/>
-                <Button x:Name="btnSeek" Content="Seek!" HorizontalAlignment="Center" Width="90" Background="#FFE2D12A" Foreground="Black" FontSize="28" Click="btnSeek_Click" Margin="0,99,0,244"/>
+                <Button x:Name="btnSeek" Content="Seek!" HorizontalAlignment="Center" Width="112" Background="#FFE2D12A" Foreground="Black" FontSize="28" Click="btnSeek_Click" Margin="0,99,0,281"/>
                 <Image x:Name="imgAlbum" Height="100" Margin="147,186,147,0" VerticalAlignment="Top" Width="100"/>
-                <Label x:Name="lblTitle" Visibility ="Visible" Content="Title" HorizontalAlignment="Center" Margin="0,296,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
-                <Label x:Name="lblAlbum" Visibility ="Visible" Content="Album" HorizontalAlignment="Center" Margin="0,332,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
-                <Label x:Name="lblArtist" Visibility ="Visible" Content="Artist" HorizontalAlignment="Center" Margin="0,365,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+                <Label x:Name="lblTitle" Visibility ="Visible" Content="Title" HorizontalAlignment="Center" Margin="0,298,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+                <Label x:Name="lblAlbum" Visibility ="Visible" Content="Album" HorizontalAlignment="Center" Margin="0,346,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+                <Label x:Name="lblArtist" Visibility ="Visible" Content="Artist" HorizontalAlignment="Center" Margin="0,394,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
                 <Label x:Name="lblListenMessage" Visibility ="Hidden" Content="Listening!" HorizontalAlignment="Center" Margin="0,83,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" IsEnabled="False"/>
             </Grid>
         </TabItem>
@@ -22,8 +23,8 @@
             <Grid>
                 <TextBlock HorizontalAlignment="Center" Margin="0,36,0,0" Text="To hash MP3 tracks in a certain directory, paste the directory address into the textbox below and click the 'Hash Tracks' button. If you wish instead to delete a hashed track, input its unique track ID into the textbox below and click the 'Delete Track' button." TextWrapping="Wrap" VerticalAlignment="Top" Height="71" Width="374"/>
                 <TextBox Name="tbxAdminInput" HorizontalAlignment="Center" Margin="0,142,0,0" Text="" FontSize="12"  VerticalAlignment="Top" Width="374" Height="19"/>
-                <Button x:Name="btnDeleteTrack" Content="Delete Track" Margin="228,0,78,0" VerticalAlignment="Center" Height="31" Click="btnDeleteTrack_Click"/>
-                <Button x:Name="btnHashTracks" Content="Hash Tracks" VerticalAlignment="Center" Height="31" Margin="84,0,0,0" HorizontalAlignment="Left" Width="82" Click="btnHashTracks_Click"/>
+                <Button x:Name="btnDeleteTrack" Content="Delete Track" Margin="309,187,173,0" VerticalAlignment="Top" Height="31" Click="btnDeleteTrack_Click"/>
+                <Button x:Name="btnHashTracks" Content="Hash Tracks" VerticalAlignment="Top" Height="31" Margin="190,187,0,0" HorizontalAlignment="Left" Width="82" Click="btnHashTracks_Click"/>
                 <ListBox x:Name ="lbxOutput" Margin="10,244,10,10"/>
                 <Label Name="lblHashingMessage" Content="Hashing..." Visibility="Hidden" HorizontalAlignment="Left" Margin="94,0,0,0" VerticalAlignment="Center"/>
                 <Label Name="lblDeletingMessage" Content="Deleting..." Visibility="Hidden" HorizontalAlignment="Left" Margin="241,0,0,0" VerticalAlignment="Center"/>

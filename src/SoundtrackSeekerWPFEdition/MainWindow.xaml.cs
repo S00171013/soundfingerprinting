@@ -1,41 +1,35 @@
-﻿using HundredMilesSoftware.UltraID3Lib;
-using NAudio.Wave;
-using SoundFingerprinting;
-using SoundFingerprinting.Audio;
-using SoundFingerprinting.Audio.NAudio;
-using SoundFingerprinting.Builder;
-using SoundFingerprinting.DAO;
-using SoundFingerprinting.DAO.Data;
-using SoundFingerprinting.Data;
-using SoundFingerprinting.Emy;
-using SoundFingerprinting.InMemory;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using NAudio.Wave;
+using SoundFingerprinting.Audio;
+using SoundFingerprinting.Audio.NAudio;
+using SoundFingerprinting.Emy;
+using SoundFingerprinting.Builder;
+using SoundFingerprinting.Data;
+using SoundFingerprinting.DAO.Data;
 
 namespace SoundtrackSeekerWPFEdition
 {
     public partial class MainWindow : Window
-    {
-        private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. 
-        private static EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399.       
-        private static readonly IAudioService nAudioService = new NAudioService();
+    {         
+        private static EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399. 
+        private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. Used to discover matches for queries.
+        private static readonly IAudioService nAudioService = new NAudioService(); // Additional NAudio library. Used to hash both WAV and MP3 files.   
 
-        UltraID3 u = new UltraID3();
         private static WaveInEvent waveSource = null;
         private static WaveFileWriter waveFile = null;
-        private const int SECONDS_TO_LISTEN = 13;
-        public static string tempFile = "";
+        private const int SECONDS_TO_LISTEN = 7; // I think 7 will be a good interval to listen for.
+        private static string tempFile = "";
         private static string lastMatchedSongId;
 
         public MainWindow()
-        {
-            //EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399);
+        {            
             InitializeComponent();
         }
 
@@ -98,7 +92,8 @@ namespace SoundtrackSeekerWPFEdition
 
         public async Task<TrackData> GetBestMatchForSong(string queryAudioFile)
         {
-            int secondsToAnalyze = 10; // number of seconds to analyze from query file.
+            int secondsToAnalyze = SECONDS_TO_LISTEN; // number of seconds to analyze from query file.
+            //int secondsToAnalyze = 10; // number of seconds to analyze from query file.
             int startAtSecond = 0; // start at the beginning.
 
             // query the underlying database for similar audio sub-fingerprints.
@@ -139,23 +134,30 @@ namespace SoundtrackSeekerWPFEdition
         #region TRACK HASHING
         private void HashTrack(string trackPathIn, TrackInfo trackInfoIn) // We want to pass in a list of "TrackInfo" objects here.
         {
-            lbxOutput.Items.Add(String.Format("Hashing Track: '{0}' by {1}.", trackInfoIn.Title, trackInfoIn.Artist));            
+            lbxOutput.Items.Add(String.Format("Hashing Track: '{0}' by {1}.", trackInfoIn.Title, trackInfoIn.Artist));
             var task = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPathIn, trackInfoIn));
             task.Wait(); // WaitAndUnwrapException in the console version. May have to fix something here.            
         }
 
         private TrackInfo ExtractTrackInfo(string trackFilePathIn)
         {
-            u.Read(trackFilePathIn);            
+            // https://stackoverflow.com/questions/29125336/error-with-ultraid3lib-vb // UltraID3Lib does not support ID3V2.4, seems we need to use "TagLib#" instead.
+            // https://stackoverflow.com/questions/4361587/where-can-i-find-tag-lib-sharp-examples
+            TagLib.File f = TagLib.File.Create(trackFilePathIn); // Create a TagLib file from the MP3's path.                       
 
             // Metafield setup.
             Dictionary<string, string> newTrackMetaField = new Dictionary<string, string>();
-            newTrackMetaField.Add("Album", u.Album);
-            newTrackMetaField.Add("Genre", u.Genre);
-            newTrackMetaField.Add("Year", u.Year.ToString());
-            newTrackMetaField.Add("Duration", Math.Round(u.Duration.TotalSeconds, 2).ToString());
+            newTrackMetaField.Add("File Name", f.Name);
+            newTrackMetaField.Add("Track Number", f.Tag.Track.ToString());
+            newTrackMetaField.Add("Album", f.Tag.Album);
+            newTrackMetaField.Add("Genre", f.Tag.JoinedGenres);
+            newTrackMetaField.Add("Year", f.Tag.Year.ToString());
+            newTrackMetaField.Add("Album Artist", f.Tag.JoinedAlbumArtists);
+            newTrackMetaField.Add("Duration", Math.Round(f.Properties.Duration.TotalSeconds, 2).ToString());
+            newTrackMetaField.Add("Bit Rate", f.Properties.AudioBitrate.ToString());
+            newTrackMetaField.Add("Sample Rate", f.Properties.AudioSampleRate.ToString());
 
-            TrackInfo extractedTrackInfo = new TrackInfo(Guid.NewGuid().ToString(), u.Title, u.Artist, newTrackMetaField, MediaType.Audio);
+            TrackInfo extractedTrackInfo = new TrackInfo(Guid.NewGuid().ToString(), f.Tag.Title, f.Tag.JoinedPerformers, newTrackMetaField, MediaType.Audio);
             return extractedTrackInfo;
         }
 
@@ -171,9 +173,9 @@ namespace SoundtrackSeekerWPFEdition
             // Get track info.  
             try
             {
-                filesToHash = Directory.EnumerateFiles(tbxAdminInput.Text, "*.mp3").ToList();               
+                filesToHash = Directory.EnumerateFiles(tbxAdminInput.Text, "*.mp3", SearchOption.AllDirectories).ToList();
 
-                foreach(string trackFilePath in filesToHash)
+                foreach (string trackFilePath in filesToHash)
                 {
                     TrackInfo newTrackInfo = ExtractTrackInfo(trackFilePath);
                     HashTrack(trackFilePath, newTrackInfo);
@@ -182,12 +184,12 @@ namespace SoundtrackSeekerWPFEdition
                 lblHashingMessage.Visibility = Visibility.Hidden;
                 btnHashTracks.Visibility = Visibility.Visible;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 //MessageBox.Show("Invalid directory input.");
                 MessageBox.Show(ex.Message);
                 lblHashingMessage.Visibility = Visibility.Hidden;
-                btnHashTracks.Visibility = Visibility.Visible;               
+                btnHashTracks.Visibility = Visibility.Visible;
             }
         }
 
@@ -224,7 +226,7 @@ namespace SoundtrackSeekerWPFEdition
 
                 trackToDelete = null;
                 lblDeletingMessage.Visibility = Visibility.Hidden;
-                btnDeleteTrack.Visibility = Visibility.Visible;               
+                btnDeleteTrack.Visibility = Visibility.Visible;
             }
 
             else if (trackToDelete == null)
@@ -238,7 +240,7 @@ namespace SoundtrackSeekerWPFEdition
         {
             btnDeleteTrack.Visibility = Visibility.Hidden;
             lblDeletingMessage.Visibility = Visibility.Visible;
-            DeleteTrack(tbxAdminInput.Text);                                             
+            DeleteTrack(tbxAdminInput.Text);
         }
         #endregion
     }
