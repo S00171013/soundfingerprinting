@@ -10,7 +10,7 @@
     <TabControl>
         <TabItem Header="App">
             <Grid>
-                <Label x:Name="lblAppName" Content="Soundtrack Seeker" HorizontalAlignment="Center" Margin="0,33,0,0" VerticalAlignment="Top" FontSize="30" FontWeight="Bold"/>
+                <Label x:Name="lblAppName" Content="VGM Seeker" HorizontalAlignment="Center" Margin="0,33,0,0" VerticalAlignment="Top" FontSize="30" FontWeight="Bold"/>
                 <Button x:Name="btnSeek" Content="Seek!" HorizontalAlignment="Center" Width="112" Background="#FFE2D12A" Foreground="Black" FontSize="28" Click="btnSeek_Click" Margin="0,99,0,281"/>
                 <Image x:Name="imgAlbum" Height="100" Margin="147,186,147,0" VerticalAlignment="Top" Width="100"/>
                 <Label x:Name="lblTitle" Visibility ="Visible" Content="Title" HorizontalAlignment="Center" Margin="0,298,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
@@ -26,8 +26,8 @@
                 <Button x:Name="btnDeleteTrack" Content="Delete Track" Margin="309,187,173,0" VerticalAlignment="Top" Height="31" Click="btnDeleteTrack_Click"/>
                 <Button x:Name="btnHashTracks" Content="Hash Tracks" VerticalAlignment="Top" Height="31" Margin="190,187,0,0" HorizontalAlignment="Left" Width="82" Click="btnHashTracks_Click"/>
                 <ListBox x:Name ="lbxOutput" Margin="10,244,10,10"/>
-                <Label Name="lblHashingMessage" Content="Hashing..." Visibility="Hidden" HorizontalAlignment="Left" Margin="94,0,0,0" VerticalAlignment="Center"/>
-                <Label Name="lblDeletingMessage" Content="Deleting..." Visibility="Hidden" HorizontalAlignment="Left" Margin="241,0,0,0" VerticalAlignment="Center"/>
+                <Label Name="lblHashingMessage" Content="Hashing..." Visibility="Hidden" HorizontalAlignment="Left" Margin="200,190,0,0" VerticalAlignment="Top"/>
+                <Label Name="lblDeletingMessage" Content="Deleting..." Visibility="Hidden" HorizontalAlignment="Left" Margin="334,190,0,0" VerticalAlignment="Top"/>
             </Grid>
         </TabItem>
     </TabControl>
