@@ -6,6 +6,8 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using NAudio.Wave;
 using SoundFingerprinting.Audio;
 using SoundFingerprinting.Audio.NAudio;
@@ -13,6 +15,8 @@ using SoundFingerprinting.Emy;
 using SoundFingerprinting.Builder;
 using SoundFingerprinting.Data;
 using SoundFingerprinting.DAO.Data;
+using Newtonsoft.Json;
+using System.Windows.Media.Imaging;
 
 namespace SoundtrackSeekerWPFEdition
 {
@@ -21,15 +25,84 @@ namespace SoundtrackSeekerWPFEdition
         private static EmyModelService emyModelService = EmyModelService.NewInstance("localhost", 3399); // connect to Emy on port 3399. 
         private static readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library. Used to discover matches for queries.
         private static readonly IAudioService nAudioService = new NAudioService(); // Additional NAudio library. Used to hash both WAV and MP3 files.   
+        private static HttpClient client = new HttpClient();
 
         private static WaveInEvent waveSource = null;
         private static WaveFileWriter waveFile = null;
         private const int SECONDS_TO_LISTEN = 7; // I think 7 seconds will be a good interval to listen for.
-        private static string tempFile = "";        
+        private static string tempFile = "";
 
         public MainWindow()
         {
+
             InitializeComponent();
+        }
+
+
+
+
+        private async void btnApiTest_Click(object sender, RoutedEventArgs e)
+        {
+            // Call asynchronous network methods in a try/catch block to handle exceptions.
+            try
+            { // https://stackoverflow.com/questions/6620165/how-can-i-parse-json-with-c
+                string link = null;
+                //string imageUrl = null;
+                HttpResponseMessage response = await client.GetAsync("https://vgmdb.info/search/albums/\"tekken\"");
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                // Above three lines can be replaced with new helper method below
+                // string responseBody = await client.GetStringAsync(uri);
+
+                //MessageBox.Show((responseBody));
+
+                dynamic info = JsonConvert.DeserializeObject(responseBody);
+
+                link = info.results.albums[0].link;
+                //MessageBox.Show(link);
+
+                if (link != null)
+                {
+                    try
+                    {
+                        string albumUrl = string.Format("https://vgmdb.info/{0}", link);
+                        //MessageBox.Show(albumUrl);
+
+                        HttpResponseMessage albumResponse = await client.GetAsync(albumUrl);
+                        response.EnsureSuccessStatusCode();
+                        string albumResponseBody = await albumResponse.Content.ReadAsStringAsync(); // "Album response", not "response" again.
+                        //MessageBox.Show(albumResponseBody);
+                        // Above three lines can be replaced with new helper method below
+                        //string responseBody = await client.GetStringAsync(uri);
+
+                        //MessageBox.Show((responseBody));
+
+                        dynamic albumInfo = JsonConvert.DeserializeObject(albumResponseBody);
+
+                        string imageUrl = albumInfo.picture_small.ToString();
+                        MessageBox.Show((imageUrl));
+
+                        var image = new Image();
+                        
+
+                        BitmapImage bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(imageUrl, UriKind.Absolute);
+                        bitmap.EndInit();
+
+                        imgAlbum.Source = bitmap;                       
+                    }
+                    catch(Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                //Console.WriteLine("\nException Caught!");
+                MessageBox.Show(string.Format("Message :{0} ", ex.Message));
+            }
         }
 
         #region TRACK MATCHING METHODS
@@ -128,7 +201,7 @@ namespace SoundtrackSeekerWPFEdition
             try
             {
                 // Create an enumerable list of all MP3s found in the given directory (including subdirectories).
-                filesToHash = Directory.EnumerateFiles(tbxAdminInput.Text, "*.mp3", SearchOption.AllDirectories).ToList(); 
+                filesToHash = Directory.EnumerateFiles(tbxAdminInput.Text, "*.mp3", SearchOption.AllDirectories).ToList();
 
                 foreach (string trackFilePath in filesToHash)
                 { // For each MP3 track found...
@@ -184,9 +257,9 @@ namespace SoundtrackSeekerWPFEdition
 
             var task = Task.Run(async () => await StoreForLaterRetrievalAsync(trackPathIn, trackInfoIn));
             task.Wait(); // WaitAndUnwrapException in the console version. May have to fix something here.            
-        }               
+        }
         private async Task StoreForLaterRetrievalAsync(string pathToAudioFile, TrackInfo trackInfoIn)
-        {            
+        {
             // Create fingerprints.
             var hashedFingerprints = await FingerprintCommandBuilder.Instance
                                         .BuildFingerprintCommand()
@@ -229,7 +302,7 @@ namespace SoundtrackSeekerWPFEdition
                 {
                     HandleVisibility(lblDeletingMessage, "HIDE");
                     HandleVisibility(btnDeleteTrack, "DISPLAY");
-                }), DispatcherPriority.Render);                
+                }), DispatcherPriority.Render);
             }
 
             else if (trackToDelete == null)
@@ -240,17 +313,17 @@ namespace SoundtrackSeekerWPFEdition
                 {
                     HandleVisibility(lblDeletingMessage, "HIDE");
                     HandleVisibility(btnDeleteTrack, "DISPLAY");
-                }), DispatcherPriority.Render);                
+                }), DispatcherPriority.Render);
             }
-        }       
+        }
         #endregion
 
         #region UI ELEMENT VISIBILITY MANIPULATION METHODS
         private void HandleVisibility(ContentControl uiElement, string action)
-        {            
+        {
             if (action.ToUpper() == "DISPLAY") uiElement.Visibility = Visibility.Visible;
             else if (action.ToUpper() == "HIDE") uiElement.Visibility = Visibility.Hidden;
-            else if (action.ToUpper() == "COLLAPSE") uiElement.Visibility = Visibility.Collapsed;          
+            else if (action.ToUpper() == "COLLAPSE") uiElement.Visibility = Visibility.Collapsed;
         }
         private void SetTrackInfoVisibility(string action)
         {
@@ -258,6 +331,6 @@ namespace SoundtrackSeekerWPFEdition
             HandleVisibility(lblAlbum, action);
             HandleVisibility(lblArtist, action);
         }
-        #endregion
+        #endregion        
     }
 }
