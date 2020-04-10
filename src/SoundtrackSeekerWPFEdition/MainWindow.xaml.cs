@@ -30,9 +30,7 @@ namespace SoundtrackSeekerWPFEdition
         private static WaveInEvent waveSource = null;
         private static WaveFileWriter waveFile = null;
         private const int SECONDS_TO_LISTEN = 7; // I think 7 seconds will be a good interval to listen for.
-        private static string tempFile = "";
-        private static string baseUrlVgmdb = "https://vgmdb.info/";
-        private static string baseUrlSerp = "https://serpapi.com/search?q=";
+        private static string tempFile = "";        
 
         public MainWindow()
         {
@@ -44,6 +42,7 @@ namespace SoundtrackSeekerWPFEdition
         #region TRACK MATCHING METHODS
         private void btnSeek_Click(object sender, RoutedEventArgs e)
         {
+            if (lblImageSearchMessage.Visibility != Visibility.Hidden) HandleVisibility(lblImageSearchMessage, "HIDE");
             imgAlbum.Source = null; // Clear the previous album image if one was already there.
             HandleVisibility(lblListenMessage, "DISPLAY");
             HandleVisibility(btnSeek, "HIDE");
@@ -86,7 +85,11 @@ namespace SoundtrackSeekerWPFEdition
                     lblAlbum.Content = foundAlbum;
                     lblArtist.Content = string.Format("By: {0}", td.Artist);
 
-                    SetTrackInfoVisibility("DISPLAY"); 
+                    SetTrackInfoVisibility("DISPLAY");
+
+                    // Prepare album name to make it more suitable to search the API with.
+                    foundAlbum = foundAlbum.Replace(":", "");
+                    foundAlbum = foundAlbum.Replace(".", "");
 
                     SearchAlbumImage(foundAlbum); // Look for a corresponding album image online.
                 }), DispatcherPriority.Render);
@@ -135,7 +138,8 @@ namespace SoundtrackSeekerWPFEdition
         }
         private async void SearchAlbumImage(string albumToSearch)
         {            
-            HandleVisibility(lblImageSearchMessage, "DISPLAY");
+            lblImageSearchMessage.Content = "Searching for album cover...";
+            HandleVisibility(lblImageSearchMessage, "DISPLAY"); // Tell the user we are searching for an album image.
             string albumLink = null;
             // Call asynchronous network methods in a try/catch block to handle exceptions.
             // https://stackoverflow.com/questions/6620165/how-can-i-parse-json-with-c                            
@@ -147,7 +151,7 @@ namespace SoundtrackSeekerWPFEdition
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Unable to find any album results.");
+                lblImageSearchMessage.Content = "Unable to find an album cover.";
             }
 
             if (albumLink != null)
