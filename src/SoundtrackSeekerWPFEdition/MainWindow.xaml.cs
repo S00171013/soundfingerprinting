@@ -1,13 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Windows.Media.Imaging;
+using Newtonsoft.Json;
 using NAudio.Wave;
 using SoundFingerprinting.Audio;
 using SoundFingerprinting.Audio.NAudio;
@@ -15,8 +17,6 @@ using SoundFingerprinting.Emy;
 using SoundFingerprinting.Builder;
 using SoundFingerprinting.Data;
 using SoundFingerprinting.DAO.Data;
-using Newtonsoft.Json;
-using System.Windows.Media.Imaging;
 
 namespace SoundtrackSeekerWPFEdition
 {
@@ -31,102 +31,20 @@ namespace SoundtrackSeekerWPFEdition
         private static WaveFileWriter waveFile = null;
         private const int SECONDS_TO_LISTEN = 7; // I think 7 seconds will be a good interval to listen for.
         private static string tempFile = "";
+        private static string baseUrlVgmdb = "https://vgmdb.info/";
+        private static string baseUrlSerp = "https://serpapi.com/search?q=";
 
         public MainWindow()
         {
             SetUpClient();
             InitializeComponent();
-        }
-
-        private async void btnApiTest_Click(object sender, RoutedEventArgs e)
-        {
-            SearchAlbumImage("tekken");
-            //string albumLink = null;
-            //string albumUrl = null;
-            //// Call asynchronous network methods in a try/catch block to handle exceptions.
-            //// https://stackoverflow.com/questions/6620165/how-can-i-parse-json-with-c                
-            //string responseBody = await client.GetStringAsync("\"tekken\"");
-            //dynamic searchInfo = JsonConvert.DeserializeObject(responseBody);
-            //try
-            //{
-            //    albumLink = searchInfo.results.albums[0].link;
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Unable to find any album results.");
-            //}
-
-            //if (albumLink != null)
-            //{
-            //    albumUrl = string.Format("https://vgmdb.info/{0}", albumLink);
-            //    string albumResponseBody = await client.GetStringAsync(albumUrl);
-            //    dynamic albumInfo = JsonConvert.DeserializeObject(albumResponseBody);
-            //    string imageUrl = albumInfo.picture_small.ToString();
-
-            //    var image = new Image(); // https://stackoverflow.com/questions/18435829/showing-image-in-wpf-using-the-url-link-from-database                
-            //    BitmapImage bitmap = new BitmapImage();
-            //    bitmap.BeginInit();
-            //    bitmap.UriSource = new Uri(imageUrl, UriKind.Absolute);
-            //    bitmap.EndInit();
-
-            //    imgAlbum.Source = bitmap;
-            //}
-        }
-
-        private async void SearchAlbumImage(string albumToSearch)
-        {
-            string albumLink = null;
-            // Call asynchronous network methods in a try/catch block to handle exceptions.
-            // https://stackoverflow.com/questions/6620165/how-can-i-parse-json-with-c                            
-            dynamic searchInfo = await RetrieveObjectFromClient(string.Format("search/albums/\"{0}\"", albumToSearch));
-
-            try
-            {
-                albumLink = searchInfo.results.albums[0].link;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Unable to find any album results.");
-            }
-
-            if (albumLink != null)
-            {                
-                dynamic albumInfo = await RetrieveObjectFromClient(albumLink);
-
-                string imageUrl = albumInfo.picture_small.ToString();
-                DisplayAlbumImage(imageUrl);
-            }
-        }
-
-        private void DisplayAlbumImage(string imageUrl)
-        {
-            var image = new Image(); // https://stackoverflow.com/questions/18435829/showing-image-in-wpf-using-the-url-link-from-database                
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(imageUrl, UriKind.Absolute);
-            bitmap.EndInit();
-
-            imgAlbum.Source = bitmap;
-        }
-
-        private async Task<dynamic> RetrieveObjectFromClient(string urlPath)
-        {
-            string responseBody = await client.GetStringAsync(urlPath);
-            dynamic jsonInfo = JsonConvert.DeserializeObject(responseBody);
-            return jsonInfo;
-        }
-
-        private static void SetUpClient()
-        {
-            client.BaseAddress = new Uri("https://vgmdb.info/");
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
-        }
-
+        }  
+        
+        // APP Methods.
         #region TRACK MATCHING METHODS
         private void btnSeek_Click(object sender, RoutedEventArgs e)
         {
+            imgAlbum.Source = null; // Clear the previous album image if one was already there.
             HandleVisibility(lblListenMessage, "DISPLAY");
             HandleVisibility(btnSeek, "HIDE");
             SetTrackInfoVisibility("HIDE");
@@ -166,11 +84,11 @@ namespace SoundtrackSeekerWPFEdition
                 {
                     lblTitle.Content = td.Title;
                     lblAlbum.Content = foundAlbum;
-                    lblArtist.Content = td.Artist;
+                    lblArtist.Content = string.Format("By: {0}", td.Artist);
 
-                    SetTrackInfoVisibility("DISPLAY"); // Gotta check this out at home. Have a feeling changes won't be made while the labels are invisible.
+                    SetTrackInfoVisibility("DISPLAY"); 
 
-                    SearchAlbumImage(foundAlbum); // Gotta try this tomorrow.
+                    SearchAlbumImage(foundAlbum); // Look for a corresponding album image online.
                 }), DispatcherPriority.Render);
             }
 
@@ -207,7 +125,74 @@ namespace SoundtrackSeekerWPFEdition
         }
         #endregion
 
-        // ADMIN Methods
+        #region ALBUM IMAGE API SEARCH METHODS.
+        private static void SetUpClient()
+        {
+            client.BaseAddress = new Uri("https://vgmdb.info/");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+        }
+        private async void SearchAlbumImage(string albumToSearch)
+        {            
+            HandleVisibility(lblImageSearchMessage, "DISPLAY");
+            string albumLink = null;
+            // Call asynchronous network methods in a try/catch block to handle exceptions.
+            // https://stackoverflow.com/questions/6620165/how-can-i-parse-json-with-c                            
+            dynamic searchInfo = await RetrieveJsonObjectFromClient(string.Format("search/albums/\"{0}\"", albumToSearch));
+
+            try
+            {
+                albumLink = searchInfo.results.albums[0].link;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to find any album results.");
+            }
+
+            if (albumLink != null)
+            {
+                dynamic albumInfo = await RetrieveJsonObjectFromClient(albumLink);
+
+                string imageUrl = albumInfo.picture_small.ToString();
+                DisplayAlbumImage(imageUrl);
+            }
+        }
+        private void DisplayAlbumImage(string imageUrl)
+        {
+            HandleVisibility(lblImageSearchMessage, "HIDE");
+            var image = new Image(); // https://stackoverflow.com/questions/18435829/showing-image-in-wpf-using-the-url-link-from-database                
+            BitmapImage bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(imageUrl, UriKind.Absolute);
+            bitmap.EndInit();
+
+            imgAlbum.Source = bitmap;
+        }
+        private async Task<dynamic> RetrieveJsonObjectFromClient(string urlPath)
+        {
+            string responseBody = await client.GetStringAsync(urlPath);
+            dynamic jsonInfo = JsonConvert.DeserializeObject(responseBody);
+            return jsonInfo;
+        }
+        #endregion
+
+        #region UI ELEMENT VISIBILITY MANIPULATION METHODS
+        private void HandleVisibility(ContentControl uiElement, string action)
+        {
+            if (action.ToUpper() == "DISPLAY") uiElement.Visibility = Visibility.Visible;
+            else if (action.ToUpper() == "HIDE") uiElement.Visibility = Visibility.Hidden;
+            else if (action.ToUpper() == "COLLAPSE") uiElement.Visibility = Visibility.Collapsed;
+        }
+        private void SetTrackInfoVisibility(string action)
+        {
+            HandleVisibility(lblTitle, action);
+            HandleVisibility(lblAlbum, action);
+            HandleVisibility(lblArtist, action);
+        }
+        #endregion
+
+        // ADMIN Methods.
         #region TRACK HASHING METHODS
         private async void btnHashTracks_Click(object sender, RoutedEventArgs e)
         {
@@ -336,21 +321,6 @@ namespace SoundtrackSeekerWPFEdition
                     HandleVisibility(btnDeleteTrack, "DISPLAY");
                 }), DispatcherPriority.Render);
             }
-        }
-        #endregion
-
-        #region UI ELEMENT VISIBILITY MANIPULATION METHODS
-        private void HandleVisibility(ContentControl uiElement, string action)
-        {
-            if (action.ToUpper() == "DISPLAY") uiElement.Visibility = Visibility.Visible;
-            else if (action.ToUpper() == "HIDE") uiElement.Visibility = Visibility.Hidden;
-            else if (action.ToUpper() == "COLLAPSE") uiElement.Visibility = Visibility.Collapsed;
-        }
-        private void SetTrackInfoVisibility(string action)
-        {
-            HandleVisibility(lblTitle, action);
-            HandleVisibility(lblAlbum, action);
-            HandleVisibility(lblArtist, action);
         }
         #endregion        
     }

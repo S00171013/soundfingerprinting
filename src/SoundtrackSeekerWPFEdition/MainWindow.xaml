@@ -11,13 +11,13 @@
         <TabItem Header="App">
             <Grid>
                 <Label x:Name="lblAppName" Content="VGM Seeker" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" FontSize="30" FontWeight="Bold"/>
-                <Button x:Name="btnSeek" Content="Seek!" HorizontalAlignment="Left" Width="112" Background="#FFE2D12A" Foreground="Black" FontSize="28" Click="btnSeek_Click" Margin="238,71,0,498"/>
-                <Image x:Name="imgAlbum" Height="300" Width="400" RenderOptions.BitmapScalingMode="HighQuality" Margin="97,176,97,0" VerticalAlignment="Top" />
-                <Label x:Name="lblTitle" Visibility ="Visible" Content="Title" HorizontalAlignment="Center" Margin="0,494,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
-                <Label x:Name="lblAlbum" Visibility ="Visible" Content="Album" HorizontalAlignment="Center" Margin="0,548,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
-                <Label x:Name="lblArtist" Visibility ="Visible" Content="Artist" HorizontalAlignment="Center" Margin="0,600,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+                <Button x:Name="btnSeek" Content="Seek!" HorizontalAlignment="Center" Width="112" Background="#FFE2D12A" Foreground="Black" FontSize="28" Click="btnSeek_Click" Margin="0,65,0,504"/>
+                <Image x:Name="imgAlbum" Height="300" Width="400" RenderOptions.BitmapScalingMode="HighQuality" Margin="97,177,97,0" VerticalAlignment="Top" />
+                <Label x:Name="lblTitle" Visibility ="Hidden" Content="Title" HorizontalAlignment="Center" Margin="0,499,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+                <Label x:Name="lblAlbum" Visibility ="Hidden" Content="Album" HorizontalAlignment="Center" Margin="0,530,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
+                <Label x:Name="lblArtist" Visibility ="Hidden" Content="Artist" HorizontalAlignment="Center" Margin="0,561,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16"/>
                 <Label x:Name="lblListenMessage" Visibility ="Hidden" Content="Listening!" HorizontalAlignment="Center" Margin="0,83,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" IsEnabled="False"/>
-                <Button x:Name="btnApiTest" Content="API Test" HorizontalAlignment="Left" Width="112" Background="#FFE2652A" Foreground="Black" FontSize="28"  Margin="472,553,0,25" Click="btnApiTest_Click"/>
+                <Label x:Name="lblImageSearchMessage" Visibility ="Hidden" Content="Searching for album cover..." HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Normal" FontSize="16"/>
             </Grid>
         </TabItem>
         <TabItem Header="Admin">
