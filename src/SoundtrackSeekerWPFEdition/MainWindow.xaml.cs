@@ -34,75 +34,94 @@ namespace SoundtrackSeekerWPFEdition
 
         public MainWindow()
         {
-
+            SetUpClient();
             InitializeComponent();
         }
 
-
-
-
         private async void btnApiTest_Click(object sender, RoutedEventArgs e)
         {
+            SearchAlbumImage("tekken");
+            //string albumLink = null;
+            //string albumUrl = null;
+            //// Call asynchronous network methods in a try/catch block to handle exceptions.
+            //// https://stackoverflow.com/questions/6620165/how-can-i-parse-json-with-c                
+            //string responseBody = await client.GetStringAsync("\"tekken\"");
+            //dynamic searchInfo = JsonConvert.DeserializeObject(responseBody);
+            //try
+            //{
+            //    albumLink = searchInfo.results.albums[0].link;
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("Unable to find any album results.");
+            //}
+
+            //if (albumLink != null)
+            //{
+            //    albumUrl = string.Format("https://vgmdb.info/{0}", albumLink);
+            //    string albumResponseBody = await client.GetStringAsync(albumUrl);
+            //    dynamic albumInfo = JsonConvert.DeserializeObject(albumResponseBody);
+            //    string imageUrl = albumInfo.picture_small.ToString();
+
+            //    var image = new Image(); // https://stackoverflow.com/questions/18435829/showing-image-in-wpf-using-the-url-link-from-database                
+            //    BitmapImage bitmap = new BitmapImage();
+            //    bitmap.BeginInit();
+            //    bitmap.UriSource = new Uri(imageUrl, UriKind.Absolute);
+            //    bitmap.EndInit();
+
+            //    imgAlbum.Source = bitmap;
+            //}
+        }
+
+        private async void SearchAlbumImage(string albumToSearch)
+        {
+            string albumLink = null;
             // Call asynchronous network methods in a try/catch block to handle exceptions.
+            // https://stackoverflow.com/questions/6620165/how-can-i-parse-json-with-c                            
+            dynamic searchInfo = await RetrieveObjectFromClient(string.Format("search/albums/\"{0}\"", albumToSearch));
+
             try
-            { // https://stackoverflow.com/questions/6620165/how-can-i-parse-json-with-c
-                string link = null;
-                //string imageUrl = null;
-                HttpResponseMessage response = await client.GetAsync("https://vgmdb.info/search/albums/\"tekken\"");
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-                // Above three lines can be replaced with new helper method below
-                // string responseBody = await client.GetStringAsync(uri);
-
-                //MessageBox.Show((responseBody));
-
-                dynamic info = JsonConvert.DeserializeObject(responseBody);
-
-                link = info.results.albums[0].link;
-                //MessageBox.Show(link);
-
-                if (link != null)
-                {
-                    try
-                    {
-                        string albumUrl = string.Format("https://vgmdb.info/{0}", link);
-                        //MessageBox.Show(albumUrl);
-
-                        HttpResponseMessage albumResponse = await client.GetAsync(albumUrl);
-                        response.EnsureSuccessStatusCode();
-                        string albumResponseBody = await albumResponse.Content.ReadAsStringAsync(); // "Album response", not "response" again.
-                        //MessageBox.Show(albumResponseBody);
-                        // Above three lines can be replaced with new helper method below
-                        //string responseBody = await client.GetStringAsync(uri);
-
-                        //MessageBox.Show((responseBody));
-
-                        dynamic albumInfo = JsonConvert.DeserializeObject(albumResponseBody);
-
-                        string imageUrl = albumInfo.picture_small.ToString();
-                        MessageBox.Show((imageUrl));
-
-                        var image = new Image();
-                        
-
-                        BitmapImage bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(imageUrl, UriKind.Absolute);
-                        bitmap.EndInit();
-
-                        imgAlbum.Source = bitmap;                       
-                    }
-                    catch(Exception ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                    }
-                }
-            }
-            catch (HttpRequestException ex)
             {
-                //Console.WriteLine("\nException Caught!");
-                MessageBox.Show(string.Format("Message :{0} ", ex.Message));
+                albumLink = searchInfo.results.albums[0].link;
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to find any album results.");
+            }
+
+            if (albumLink != null)
+            {                
+                dynamic albumInfo = await RetrieveObjectFromClient(albumLink);
+
+                string imageUrl = albumInfo.picture_small.ToString();
+                DisplayAlbumImage(imageUrl);
+            }
+        }
+
+        private void DisplayAlbumImage(string imageUrl)
+        {
+            var image = new Image(); // https://stackoverflow.com/questions/18435829/showing-image-in-wpf-using-the-url-link-from-database                
+            BitmapImage bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(imageUrl, UriKind.Absolute);
+            bitmap.EndInit();
+
+            imgAlbum.Source = bitmap;
+        }
+
+        private async Task<dynamic> RetrieveObjectFromClient(string urlPath)
+        {
+            string responseBody = await client.GetStringAsync(urlPath);
+            dynamic jsonInfo = JsonConvert.DeserializeObject(responseBody);
+            return jsonInfo;
+        }
+
+        private static void SetUpClient()
+        {
+            client.BaseAddress = new Uri("https://vgmdb.info/");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         #region TRACK MATCHING METHODS
@@ -150,6 +169,8 @@ namespace SoundtrackSeekerWPFEdition
                     lblArtist.Content = td.Artist;
 
                     SetTrackInfoVisibility("DISPLAY"); // Gotta check this out at home. Have a feeling changes won't be made while the labels are invisible.
+
+                    SearchAlbumImage(foundAlbum); // Gotta try this tomorrow.
                 }), DispatcherPriority.Render);
             }
 
