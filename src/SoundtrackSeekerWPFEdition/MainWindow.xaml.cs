@@ -90,6 +90,7 @@ namespace SoundtrackSeekerWPFEdition
                     // Prepare album name to make it more suitable to search the API with.
                     foundAlbum = foundAlbum.Replace(":", "");
                     foundAlbum = foundAlbum.Replace(".", "");
+                    foundAlbum = foundAlbum.Replace("-", "");
 
                     SearchAlbumImage(foundAlbum); // Look for a corresponding album image online.
                 }), DispatcherPriority.Render);
