@@ -78,12 +78,14 @@ namespace SoundtrackSeekerWPFEdition
             if (td != null)
             {
                 bool albumFound = td.MetaFields.TryGetValue("Album", out string foundAlbum);
+                bool yearFound = td.MetaFields.TryGetValue("Year", out string foundYear);
 
                 await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     lblTitle.Content = td.Title;
                     lblAlbum.Content = foundAlbum;
                     lblArtist.Content = string.Format("By: {0}", td.Artist);
+                    lblYear.Content = foundYear;
 
                     SetTrackInfoVisibility("DISPLAY");
 
@@ -193,6 +195,7 @@ namespace SoundtrackSeekerWPFEdition
             HandleVisibility(lblTitle, action);
             HandleVisibility(lblAlbum, action);
             HandleVisibility(lblArtist, action);
+            HandleVisibility(lblYear, action);
         }
         #endregion
 

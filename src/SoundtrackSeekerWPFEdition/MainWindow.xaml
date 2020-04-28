@@ -16,6 +16,7 @@
                 <Label x:Name="lblTitle" Visibility ="Hidden" Content="Title" HorizontalAlignment="Center" Margin="0,499,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" Foreground="White"/>
                 <Label x:Name="lblAlbum" Visibility ="Hidden" Content="Album" HorizontalAlignment="Center" Margin="0,530,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" Foreground="White"/>
                 <Label x:Name="lblArtist" Visibility ="Hidden" Content="Artist" HorizontalAlignment="Center" Margin="0,561,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" Foreground="White"/>
+                <Label x:Name="lblYear" Visibility ="Hidden" Content="Year" HorizontalAlignment="Center" Margin="0,592,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" Foreground="White"/>
                 <Label x:Name="lblListenMessage" Visibility ="Hidden" Content="Seeking!" HorizontalAlignment="Center" Margin="0,83,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" IsEnabled="False" Foreground="White"/>
                 <Label x:Name="lblImageSearchMessage" Visibility ="Hidden" Content="Searching for album cover..." HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Normal" FontSize="16" Foreground="White"/>
             </Grid>
