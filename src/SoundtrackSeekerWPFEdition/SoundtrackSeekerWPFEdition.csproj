@@ -15,13 +15,7 @@
     <PackageReference Include="SoundFingerprinting.Audio.NAudio" Version="7.0.0" />
     <PackageReference Include="SoundFingerprinting.Emy" Version="7.1.0" />
     <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="UltraID3Lib">
-      <HintPath>..\packages\UltraID3Lib0968\UltraID3Lib.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+  </ItemGroup>  
 
   <ItemGroup>
     <None Update="Queries\query.wav">
