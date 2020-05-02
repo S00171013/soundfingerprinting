@@ -19,6 +19,7 @@
                 <Label x:Name="lblYear" Visibility ="Hidden" Content="Year" HorizontalAlignment="Center" Margin="0,592,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" Foreground="White"/>
                 <Label x:Name="lblListenMessage" Visibility ="Hidden" Content="Seeking!" HorizontalAlignment="Center" Margin="0,83,0,0" VerticalAlignment="Top" FontWeight="Normal" FontSize="16" IsEnabled="False" Foreground="White"/>
                 <Label x:Name="lblImageSearchMessage" Visibility ="Hidden" Content="Searching for album cover..." HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Normal" FontSize="16" Foreground="White"/>
+                <ProgressBar x:Name="pbSeekProgress" Visibility="Hidden" HorizontalAlignment="Center" Height="31" VerticalAlignment="Center" Width="392" Background="#FF880011" Foreground="#FFE2D12A" BorderBrush="#FF3E3333"/>
             </Grid>
         </TabItem>
         <TabItem Header="Admin">

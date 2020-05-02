@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.ComponentModel;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ using SoundFingerprinting.Emy;
 using SoundFingerprinting.Builder;
 using SoundFingerprinting.Data;
 using SoundFingerprinting.DAO.Data;
+using System.Threading;
 
 namespace SoundtrackSeekerWPFEdition
 {
@@ -30,12 +32,17 @@ namespace SoundtrackSeekerWPFEdition
         private static WaveInEvent waveSource = null;
         private static WaveFileWriter waveFile = null;
         private const int SECONDS_TO_LISTEN = 7; // I think 7 seconds will be a good interval to listen for.
-        private static string tempFile = "";        
+        private static string tempFile = "";
+
+        private readonly BackgroundWorker vgmWorker = new BackgroundWorker { WorkerReportsProgress = true };
 
         public MainWindow()
         {
             SetUpClient();
             InitializeComponent();
+
+            vgmWorker.DoWork += vgmWorker_DoWork;
+            vgmWorker.ProgressChanged += vgmWorker_ProgressChanged;
         }  
         
         // APP Methods.
@@ -44,6 +51,7 @@ namespace SoundtrackSeekerWPFEdition
         {
             if (lblImageSearchMessage.Visibility != Visibility.Hidden) HandleVisibility(lblImageSearchMessage, "HIDE");
             imgAlbum.Source = null; // Clear the previous album image if one was already there.
+            pbSeekProgress.Visibility = Visibility.Visible;            
             HandleVisibility(lblListenMessage, "DISPLAY");
             HandleVisibility(btnSeek, "HIDE");
             SetTrackInfoVisibility("HIDE");
@@ -56,6 +64,9 @@ namespace SoundtrackSeekerWPFEdition
             tempFile = @"Queries\query.wav";
             waveFile = new WaveFileWriter(tempFile, waveSource.WaveFormat);
             waveSource.StartRecording();
+
+            // Start the VGM Worker.
+            vgmWorker.RunWorkerAsync();
 
             var task = Task.Run(async () => await CeaseListening(waveSource, waveFile, SECONDS_TO_LISTEN));
             //task.WaitAndUnwrapException();
@@ -101,6 +112,8 @@ namespace SoundtrackSeekerWPFEdition
 
             await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
+                pbSeekProgress.Visibility = Visibility.Hidden;
+                pbSeekProgress.Value = 0;
                 HandleVisibility(lblListenMessage, "HIDE");
                 HandleVisibility(btnSeek, "DISPLAY");
 
@@ -198,6 +211,36 @@ namespace SoundtrackSeekerWPFEdition
             HandleVisibility(lblAlbum, action);
             HandleVisibility(lblArtist, action);
             HandleVisibility(lblYear, action);
+        }
+        #endregion
+
+        #region VGM WORKER METHODS
+        private void vgmWorker_DoWork(object sender, DoWorkEventArgs doWorkEventArgs)
+        {
+            DateTime beginTime = DateTime.Now;
+
+            DateTime endTime = beginTime.AddSeconds(SECONDS_TO_LISTEN); // Set to the number of seconds from now.
+
+            float percentComplete;
+
+            while (DateTime.Now < endTime)
+            {
+                Thread.Sleep(1000); // Sleep for 1 second.
+
+                TimeSpan timeElapsed = DateTime.Now - beginTime; // Find out how long we've been going for.
+
+                // Convert it to a %
+                percentComplete = ((float)timeElapsed.TotalSeconds / (float)SECONDS_TO_LISTEN) * 100;
+
+                vgmWorker.ReportProgress((int)(Math.Round(percentComplete)));  // Pass back our seek progress.
+            }
+        }
+
+        private void vgmWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            // Update progress bar with the % completed so far.
+            pbSeekProgress.Value = e.ProgressPercentage;
+            //pbSeekProgress.Value = Math.Min(e.ProgressPercentage, 100);
         }
         #endregion
 
